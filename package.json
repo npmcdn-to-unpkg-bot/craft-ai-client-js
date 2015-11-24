@@ -25,7 +25,8 @@
   "scripts": {
     "compile": "babel --presets es2015 -d lib/ src/",
     "postinstall": "npm run compile",
-    "lint": "eslint -c ./.eslintrc src/**"
+    "lint": "eslint -c ./.eslintrc src/**",
+    "test": "npm run lint"
   },
   "devDependencies": {
     "eslint": "1.9.0"
