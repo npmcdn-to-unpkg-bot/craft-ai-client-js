@@ -21,7 +21,7 @@ export var wsURL;
 var id;
 var secret;
 
-var idUpdate = false;
+var running = false;
 
 function craftRequest(r) {
   r = _.defaults(r || {}, {
@@ -58,7 +58,7 @@ export function createInstance(user, project, version, appId, appSecret) {
   })
   .then((json)=>{
     instanceID = json.instance.instance_id;
-    idUpdate = true;
+    running = true;
     console.log('instanceID:', instanceID);
   })
   .catch((err)=>{
@@ -75,7 +75,7 @@ export function destroyInstance() {
     oReq.setRequestHeader('X-Craft-Ai-App-Id', id);
     oReq.setRequestHeader('X-Craft-Ai-App-Secret', secret);
     oReq.send();
-    idUpdate = false;
+    running = false;
     return oReq.status;
   }
   else {
@@ -84,7 +84,7 @@ export function destroyInstance() {
       path: '/'+instanceID
     })
     .then(function(res) {
-      idUpdate = false;
+      running = false;
       return res.status;
     })
     .catch((err)=>{
@@ -211,7 +211,7 @@ export function update(cbFunction) {
   craftRequest({
     method: 'POST',
     path: '/'+instanceID+'/update',
-    body: '{"time":0.5,"ts":' + new Date().getTime() + '}'
+    body: '{"ts":' + new Date().getTime() + '}'
   })
   .then(cbFunction)
   .catch((err)=>{
@@ -243,7 +243,7 @@ export function sendCancel(requestID) {
 }
 
 export function doUpdate(timeTick) {
-  if (idUpdate === true) {
+  if (running === true) {
     update(()=>{
       setTimeout(doUpdate, timeTick);
     });
@@ -277,11 +277,11 @@ export function doWS(actionTable) {
       console.log('WS Connexion open');
     };
     ws.onclose = function() {
-      idUpdate = false;
+      running = false;
       console.log('WS Connexion closed');
     };
     ws.onerror = function() {
-      idUpdate = false;
+      running = false;
       console.log('WS Connexion error');
     };
   }
