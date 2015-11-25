@@ -1,8 +1,10 @@
 export const inBrowser = typeof window !== 'undefined';
 
+require('es6-promise').polyfill();
+
+import fetch from 'isomorphic-fetch';
 import WebSocket from 'ws';
 import _ from 'lodash';
-var fetch = inBrowser === true ? require('whatwg-fetch') : require('node-fetch');
 
 String.prototype.format = function() {
   let args = arguments;
