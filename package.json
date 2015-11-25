@@ -23,8 +23,7 @@
     "craft-ai"
   ],
   "scripts": {
-    "compile": "./node_modules/.bin/babel --presets es2015 -d lib/ src/",
-    "postinstall": "npm run compile",
+    "build": "babel --presets es2015 -d lib/ src/",
     "lint": "eslint -c ./.eslintrc src/**",
     "test": "npm run lint"
   },
