@@ -247,7 +247,7 @@ export function sendCancel(requestID) {
 export function doUpdate(timeTick) {
   if (running === true) {
     update(()=>{
-      setTimeout(doUpdate, timeTick);
+      setTimeout(()=>{ doUpdate(timeTick); }, timeTick);
     });
   }
 }
@@ -262,12 +262,7 @@ export function doWS(actionTable) {
       if (evt.data != 'ping') {
         let jsonEvt = JSON.parse(evt.data);
         console.log('WS data:', evt.data);
-        if (inBrowser === true){
-          window[jsonEvt.call](jsonEvt.requestId , jsonEvt.agentId, jsonEvt.input);
-        }
-        else {
-          actionTable[jsonEvt.call].start(jsonEvt.requestId, jsonEvt.agentId, jsonEvt.input);
-        }
+        actionTable[jsonEvt.call].start(jsonEvt.requestId, jsonEvt.agentId, jsonEvt.input);
       }
       else {
         // ping web socket
