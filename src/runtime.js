@@ -1,289 +1,246 @@
-export const inBrowser = typeof window !== 'undefined';
-
-require('es6-promise').polyfill();
-
+import _ from 'lodash';
 import fetch from 'isomorphic-fetch';
 import WebSocket from 'ws';
-import _ from 'lodash';
 
-String.prototype.format = function() {
-  let args = arguments;
-  return this.replace(/{(\d+)}/g, function(match, number) { return typeof args[number] != 'undefined' ? args[number] : match; });
-};
+export const IN_BROWSER = typeof window !== 'undefined';
 
-const runtimeUrl = 'api.craft.ai';
-const hubUrl = 'hub.craft.ai';
+const CRAFT_API_URL = 'api.craft.ai';
+const CRAFT_HUB_URL = 'hub.craft.ai';
 
-export var ws;
-export var instanceID;
-export var agentID;
-export var httpURL;
-export var wsURL;
+const START_SUFFIX = '#s';
+const CANCEL_SUFFIX = '#c'; // START_SUFFIX.length === CANCEL_SUFFIX.length
 
-var id;
-var secret;
+export default function createInstance(cfg) {
+  const appId = cfg.appId;
+  const appSecret = cfg.appSecret;
+  const httpUrl = 'https://' + CRAFT_API_URL + '/v1/' + cfg.owner + '/' + cfg.name + '/' + cfg.version;
+  const wsUrl = 'wss://' + CRAFT_API_URL + '/v1/' + cfg.owner + '/' + cfg.name + '/' + cfg.version;
 
-var running = false;
+  let instanceId;
+  let running = false;
 
-function craftRequest(r) {
-  r = _.defaults(r || {}, {
-    method: 'GET',
-    path: '',
-    body: {},
-    headers: {}
-  });
-
-  var url = httpURL + r.path;
-  if ((!_.isUndefined(id)) && (!_.isUndefined(secret))) {
-    r.headers['X-Craft-Ai-App-Id'] = id;
-    r.headers['X-Craft-Ai-App-Secret'] = secret;
-  }
-  r.headers['Content-Type'] = 'application/json; charset=utf-8';
-  r.headers['accept'] = '';
-  
-  return fetch(url, {method: r.method,
-    headers:r.headers,
-    body: r.body
-  });
-}
-
-export function createInstance(user, project, version, appId, appSecret) {
-  id = appId;
-  secret = appSecret;
-  httpURL = 'https://' + runtimeUrl + '/v1/' + user + '/' + project + '/' + version;
-  wsURL = 'wss://' + runtimeUrl + '/v1/' + user + '/' + project + '/' + version;
-  return craftRequest({
-    method: 'PUT'
-  })
-  .then((res)=>{
-    return res.json();
-  })
-  .then((json)=>{
-    instanceID = json.instance.instance_id;
-    running = true;
-    console.log('instanceID:', instanceID);
-  })
-  .catch((err)=>{
-    console.log('error in createInstance:', err);
-  });
-}
-
-export function destroyInstance() {
-  if (inBrowser === true){
-    let oReq = new XMLHttpRequest();
-    oReq.open('DELETE', httpURL + '/' + instanceID, false);
-    oReq.setRequestHeader('content-type', 'application/json; charset=utf-8');
-    oReq.setRequestHeader('accept', '');
-    oReq.setRequestHeader('X-Craft-Ai-App-Id', id);
-    oReq.setRequestHeader('X-Craft-Ai-App-Secret', secret);
-    oReq.send();
-    running = false;
-    return oReq.status;
-  }
-  else {
-    return craftRequest({
-      method: 'DELETE',
-      path: '/'+instanceID
-    })
-    .then(function(res) {
-      running = false;
-      return res.status;
-    })
-    .catch((err)=>{
-      console.log('error in destroyInstance:', err);
+  let request = (r) => {
+    r = _.defaults(r || {}, {
+      method: 'GET',
+      path: '',
+      body: {},
+      headers: {}
     });
-  }
-}
 
-function registerAction(jsonString) {
-  return craftRequest({
-    method: 'PUT',
-    path: '/'+instanceID+'/actions',
-    body: jsonString
-  })
-  .catch((err)=>{
-    console.log('error in registerAction:', err);
-  });
-}
+    const url = httpUrl + r.path;
+    r.headers['X-Craft-Ai-App-Id'] = appId;
+    r.headers['X-Craft-Ai-App-Secret'] = appSecret;
+    r.headers['Content-Type'] = 'application/json; charset=utf-8';
+    r.headers['accept'] = '';
 
-export function registerActions(actionTable) {
-  console.log('registering actions...');
-  _.map(actionTable, (obj, key)=>{
-    let actionObject = {'name': key, 
-                        'start': obj.start.name, 
-                        'cancel': !_.isUndefined(obj.cancel) ? obj.cancel.name : 'cancel'};
-    registerAction(JSON.stringify(actionObject))
-    .then(()=>{
-      return;
+    return fetch(url, {
+      method: r.method,
+      headers:r.headers,
+      body: r.body
     });
-  });
-}
+  };
 
-export function createAgent(behavior, knowledge) {
-  let params = {};
-  params.behavior = behavior;
-  params.knowledge = knowledge;
-  return craftRequest({
-    method: 'PUT',
-    path: '/'+instanceID+'/agents',
-    body: JSON.stringify(params)
-  })
-  .then((res)=>{
-    return res.json();
-  })
-  .then((json)=>{
-    agentID = json.agent.id;
-  })
-  .catch((err)=>{
-    console.log('error in createAgent:', err);
-  });
-}
+  let actions = {};
 
-export function getAgentKnowledge(agentID) {
-  return craftRequest({
-    method: 'GET',
-    path: '/'+instanceID+'/agents/'+agentID+'/knowledge'
-  })
-  .then((res)=>{
-    return res.json();
-  })
-  .then((json)=>{
-    return json.knowledge;
-  })
-  .catch((err)=>{
-    console.log('error in getAgentKnowledge:', err);
-  });
-}
+  let ws;
 
-export function updateAgentKnowledge(agentID, destination, value, method='merge') {
-  let k = {};
-  k[destination] = value;
-  return craftRequest({
-    method: 'POST',
-    path: '/'+instanceID+'/agents/'+agentID+'/knowledge?method='+method,
-    body: JSON.stringify(k)
-  })
-  .then((res)=>{
-    return res.json();
-  })
-  .then((json)=>{
-    return json;
-  })
-  .catch((err)=>{
-    console.log('error in updateAgentKnowledge:', err);
-  });
-}
-
-export function getInstanceKnowledge() {
-  return craftRequest({
-    method: 'GET',
-    path: '/'+instanceID+'/instanceKnowledge'
-  })
-  .then((res)=>{
-    return res.json();
-  })
-  .then((json)=>{
-    return json.knowledge;
-  })
-  .catch((err)=>{
-    console.log('error in getInstanceKnowledge:', err);
-  });
-}
-
-export function setInstanceKnowledge(destination, value, method='merge') {
-  let k = {};
-  k[destination] = value;
-  return craftRequest({
-    method: 'POST',
-    path: '/'+instanceID+'/instanceKnowledge?method='+method,
-    body: JSON.stringify(k)
-  })
-  .then((res)=>{
-    return res.json();
-  })
-  .then((json)=>{
-    return json;
-  })
-  .catch((err)=>{
-    console.log('error in setInstanceKnowledge:', err);
-  });
-}
-
-export function update(cbFunction) {
-  craftRequest({
-    method: 'POST',
-    path: '/'+instanceID+'/update',
-    body: '{"ts":' + new Date().getTime() + '}'
-  })
-  .then(cbFunction)
-  .catch((err)=>{
-    console.log('error in instance update:', err);
-  });
-}
-
-export function sendSuccess(requestID, jsonString) {
-  return craftRequest({
-    method: 'POST',
-    path: '/'+instanceID+'/actions/'+requestID+'/success',
-    body: jsonString
-  });
-}
-
-export function sendFailure(requestID, jsonString) {
-  return craftRequest({
-    method: 'POST',
-    path: '/'+instanceID+'/actions/'+requestID+'/failure',
-    body: jsonString
-  });
-}
-
-export function sendCancel(requestID) {
-  return craftRequest({
-    method: 'POST',
-    path: '/'+instanceID+'/actions/'+requestID+'/cancelation'
-  });
-}
-
-export function doUpdate(timeTick) {
-  if (running === true) {
-    update(()=>{
-      setTimeout(()=>{ doUpdate(timeTick); }, timeTick);
-    });
-  }
-}
-
-export function doWS(actionTable) {
-  let wsUrlRoute = wsURL + '/' + instanceID + '/websockets';
-  console.log('WS Connexion on', wsUrlRoute);
-  if (wsUrlRoute) {
-    console.log('requesting WS connexion...');
-    ws = new WebSocket(wsUrlRoute);
+  let initWs = () => {
+    ws = new WebSocket(wsUrl + '/' + instanceId + '/websockets');
     ws.onmessage = function(evt) {
       if (evt.data != 'ping') {
-        let jsonEvt = JSON.parse(evt.data);
-        console.log('WS data:', evt.data);
-        actionTable[jsonEvt.call].start(jsonEvt.requestId, jsonEvt.agentId, jsonEvt.input);
-      }
-      else {
-        // ping web socket
+        const data = JSON.parse(evt.data);
+        const actionName = data.call.substring(0, data.call.length - START_SUFFIX.length);
+        if (_.endsWith(data.call, CANCEL_SUFFIX)) {
+          actions[actionName].cancel(
+            data.requestId,
+            data.agentId,
+            () => request({
+              method: 'POST',
+              path: '/' + instanceId + '/actions/' + data.requestId + '/cancelation',
+              body: JSON.stringify()
+            })
+          );
+        }
+        else if (_.endsWith(data.call, START_SUFFIX)) {
+          actions[actionName].start(
+            data.requestId,
+            data.agentId,
+            data.input,
+            (output) => request({
+              method: 'POST',
+              path: '/' + instanceId + '/actions/' + data.requestId + '/success',
+              body: JSON.stringify(output)
+            }),
+            (output) => request({
+              method: 'POST',
+              path: '/' + instanceId + '/actions/' + data.requestId + '/failure',
+              body: JSON.stringify(output)
+            })
+          );
+        }
       }
       ws.send('Done');
     };
     ws.onopen = function() {
       ws.send('socket open');
-      console.log('WS Connexion open');
     };
     ws.onclose = function() {
       running = false;
-      console.log('WS Connexion closed');
     };
     ws.onerror = function() {
       running = false;
-      console.log('WS Connexion error');
     };
-  }
-}
+  };
 
-export function google_auth(successUri, failureUri, appId, appSecret) {
-  return 'https://' + hubUrl + '/v1/auth/google?x-craft-ai-app-id=' + appId + '&x-craft-ai-app-secret=' + appSecret + '&success_uri=' + successUri + '&failure_uri=' + failureUri + '?failure=true';
+  return request({
+    method: 'PUT'
+  })
+  .then(res => {
+    return res.json();
+  })
+  .then(json => {
+    running = true;
+    instanceId = json.instance.instance_id;
+    return {
+      instanceId: instanceId,
+      getGoogleAuthUri: function(successUri, failureUri) {
+        return 'https://' + CRAFT_HUB_URL + '/v1/auth/google?x-craft-ai-app-id=' +
+          appId + '&x-craft-ai-app-secret=' + appSecret + '&success_uri=' +
+          successUri + '&failure_uri=' + failureUri + '?failure=true';
+      },
+      destroy: function() {
+        if (IN_BROWSER === true) {
+          return new Promise((resolve, reject) => {
+            // Using directly a XMLHttpRequest to handle properly the destruction on the window destruction
+            let oReq = new XMLHttpRequest();
+            oReq.open('DELETE', httpUrl + '/' + instanceId, false);
+            oReq.setRequestHeader('content-type', 'application/json; charset=utf-8');
+            oReq.setRequestHeader('accept', '');
+            oReq.setRequestHeader('X-Craft-Ai-App-Id', appId);
+            oReq.setRequestHeader('X-Craft-Ai-App-Secret', appSecret);
+            oReq.send();
+            running = false;
+          });
+        }
+        else {
+          return request({
+            method: 'DELETE',
+            path: '/'+ instanceId
+          })
+          .then(function(res) {
+            running = false;
+            return res.status;
+          });
+        }
+      },
+      registerAction: function(name, start, cancel = () => undefined) {
+        if (_.isUndefined(ws)) {
+          initWs();
+        }
+        return request({
+          method: 'PUT',
+          path: '/' + instanceId + '/actions',
+          body: JSON.stringify({
+            name: name,
+            start: name + START_SUFFIX,
+            cancel: name + CANCEL_SUFFIX
+          })
+        })
+        .then(() => {
+          actions[name] = {
+            start: start,
+            cancel: cancel
+          };
+        });
+      },
+      createAgent: function(behavior, knowledge = {}) {
+        return request({
+          method: 'PUT',
+          path: '/'+instanceId+'/agents',
+          body: JSON.stringify({
+            behavior: behavior,
+            knowledge: knowledge
+          })
+        })
+        .then((res) => {
+          return res.json();
+        })
+        .then((json) => {
+          return json.agent;
+        });
+      },
+      getAgentKnowledge: function(agentId) {
+        return request({
+          method: 'GET',
+          path: '/'+instanceId+'/agents/'+agentId+'/knowledge'
+        })
+        .then((res)=>{
+          return res.json();
+        })
+        .then((json)=>{
+          return json.knowledge;
+        });
+      },
+      updateAgentKnowledge: function(agentId, destination, value, method='merge') {
+        let k = {};
+        k[destination] = value;
+        return request({
+          method: 'POST',
+          path: '/'+instanceId+'/agents/'+agentId+'/knowledge?method='+method,
+          body: JSON.stringify(k)
+        })
+        .then((res)=>{
+          return res.json();
+        });
+      },
+      getInstanceKnowledge: function() {
+        return request({
+          method: 'GET',
+          path: '/'+instanceId+'/instanceKnowledge'
+        })
+        .then((res)=>{
+          return res.json();
+        })
+        .then((json)=>{
+          return json.knowledge;
+        });
+      },
+      updateInstanceKnowledge: function(destination, value, method='merge') {
+        let k = {};
+        k[destination] = value;
+        return request({
+          method: 'POST',
+          path: '/'+instanceId+'/instanceKnowledge?method='+method,
+          body: JSON.stringify(k)
+        })
+        .then((res)=>{
+          return res.json();
+        })
+        .then((json)=>{
+          return json;
+        });
+      },
+      update: function(delay = undefined) {
+        let singleUpdate = () => {
+          return request({
+            method: 'POST',
+            path: '/'+instanceId+'/update',
+            body: '{"ts":' + new Date().getTime() + '}'
+          });
+        };
+
+        if (!running) {
+          return Promise.reject('Can\'t update the instance, it has been destroyed.');
+        }
+        else if (_.isUndefined(delay)) {
+          return singleUpdate();
+        }
+        else {
+          return singleUpdate()
+            .then(() => new Promise(resolve => setTimeout(resolve, delay)))
+            .then(() => this.update(delay));
+        }
+      }
+    };
+  });
 }
