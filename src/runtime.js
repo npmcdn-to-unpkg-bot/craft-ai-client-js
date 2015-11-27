@@ -181,13 +181,11 @@ export default function createInstance(cfg) {
           return json.knowledge;
         });
       },
-      updateAgentKnowledge: function(agentId, destination, value, method='merge') {
-        let k = {};
-        k[destination] = value;
+      updateAgentKnowledge: function(agentId, knowledge, method='set') {
         return request({
           method: 'POST',
           path: '/'+instanceId+'/agents/'+agentId+'/knowledge?method='+method,
-          body: JSON.stringify(k)
+          body: JSON.stringify(knowledge)
         })
         .then((res)=>{
           return res.json();
@@ -205,13 +203,11 @@ export default function createInstance(cfg) {
           return json.knowledge;
         });
       },
-      updateInstanceKnowledge: function(destination, value, method='merge') {
-        let k = {};
-        k[destination] = value;
+      updateInstanceKnowledge: function(knowledge, method='set') {
         return request({
           method: 'POST',
           path: '/'+instanceId+'/instanceKnowledge?method='+method,
-          body: JSON.stringify(k)
+          body: JSON.stringify(knowledge)
         })
         .then((res)=>{
           return res.json();

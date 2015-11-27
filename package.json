@@ -8,7 +8,7 @@
     "url": "http://www.craft.ai/"
   },
   "homepage": "https://github.com/craft-ai/craft-ai-client-js",
-  "license": "MIT",
+  "license": "BSD-3-Clause",
   "bugs": {
     "url": "https://github.com/craft-ai/craft-ai-client-js/issues"
   },
@@ -19,11 +19,10 @@
   },
   "keywords": [
     "ai",
-    "javascript",
     "craft-ai"
   ],
   "scripts": {
-    "build": "babel --presets es2015 -d lib/ src/",
+    "build": "babel src --out-dir lib",
     "lint": "eslint -c ./.eslintrc src/**",
     "test": "npm run lint"
   },
@@ -36,7 +35,6 @@
     "es6-promise": "3.0.2",
     "isomorphic-fetch": "2.2.0",
     "lodash": "3.10.1",
-    "string-format": "0.5.0",
     "ws": "0.8.0"
   }
 }
