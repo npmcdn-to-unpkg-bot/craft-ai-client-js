@@ -24,10 +24,13 @@
   "scripts": {
     "build": "babel src --out-dir lib",
     "lint": "eslint -c ./.eslintrc src/**",
-    "test": "npm run lint"
+    "test": "mocha"
   },
   "devDependencies": {
-    "eslint": "1.9.0"
+    "babel-core": "6.2.1",
+    "dotenv": "1.2.0",
+    "eslint": "1.9.0",
+    "mocha": "2.3.4"
   },
   "dependencies": {
     "babel-cli": "6.1.18",

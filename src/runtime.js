@@ -3,6 +3,13 @@ import fetch from 'isomorphic-fetch';
 import WebSocket from 'ws';
 
 export const IN_BROWSER = typeof window !== 'undefined';
+export const STATUS = {
+  starting: 'starting',
+  running: 'running',
+  stopping: 'stopping',
+  destroyed: 'destroyed'
+};
+
 
 const CRAFT_API_URL = 'api.craft.ai';
 const CRAFT_HUB_URL = 'hub.craft.ai';
@@ -17,7 +24,7 @@ export default function createInstance(cfg) {
   const wsUrl = 'wss://' + CRAFT_API_URL + '/v1/' + cfg.owner + '/' + cfg.name + '/' + cfg.version;
 
   let instanceId;
-  let running = false;
+  let status = STATUS.starting;
 
   let request = (r) => {
     r = _.defaults(r || {}, {
@@ -37,6 +44,17 @@ export default function createInstance(cfg) {
       method: r.method,
       headers:r.headers,
       body: r.body
+    })
+    .then((res) => {
+      switch (res.status) {
+        case 200:
+          return res.json();
+        case 401:
+        case 403:
+          return Promise.reject('Unauthorized access please check the given appId/appSecret');
+        default:
+          return Promise.reject('Unexpected error');
+      }
     });
   };
 
@@ -85,30 +103,31 @@ export default function createInstance(cfg) {
       ws.send('socket open');
     };
     ws.onclose = function() {
-      running = false;
+      status = STATUS.destroyed; // Should cleanly call destroy instead
     };
     ws.onerror = function() {
-      running = false;
+      status = STATUS.destroyed; // Should cleanly call destroy instead
     };
   };
 
   return request({
     method: 'PUT'
   })
-  .then(res => {
-    return res.json();
-  })
   .then(json => {
-    running = true;
+    status = STATUS.running;
     instanceId = json.instance.instance_id;
     return {
       instanceId: instanceId,
+      getStatus: function() {
+        return status;
+      },
       getGoogleAuthUri: function(successUri, failureUri) {
         return 'https://' + CRAFT_HUB_URL + '/v1/auth/google?x-craft-ai-app-id=' +
           appId + '&x-craft-ai-app-secret=' + appSecret + '&success_uri=' +
           successUri + '&failure_uri=' + failureUri + '?failure=true';
       },
       destroy: function() {
+        status = STATUS.stopping;
         if (IN_BROWSER === true) {
           return new Promise((resolve, reject) => {
             // Using directly a XMLHttpRequest to handle properly the destruction on the window destruction
@@ -119,7 +138,7 @@ export default function createInstance(cfg) {
             oReq.setRequestHeader('X-Craft-Ai-App-Id', appId);
             oReq.setRequestHeader('X-Craft-Ai-App-Secret', appSecret);
             oReq.send();
-            running = false;
+            status = STATUS.destroyed; // This should be done when craft respond
           });
         }
         else {
@@ -128,8 +147,11 @@ export default function createInstance(cfg) {
             path: '/'+ instanceId
           })
           .then(function(res) {
-            running = false;
-            return res.status;
+            status = STATUS.destroyed;
+          })
+          .catch(err => {
+            status = STATUS.destroyed;
+            return Promise.reject(err);
           });
         }
       },
@@ -162,9 +184,6 @@ export default function createInstance(cfg) {
             knowledge: knowledge
           })
         })
-        .then((res) => {
-          return res.json();
-        })
         .then((json) => {
           return json.agent;
         });
@@ -173,9 +192,6 @@ export default function createInstance(cfg) {
         return request({
           method: 'GET',
           path: '/'+instanceId+'/agents/'+agentId+'/knowledge'
-        })
-        .then((res)=>{
-          return res.json();
         })
         .then((json)=>{
           return json.knowledge;
@@ -186,18 +202,12 @@ export default function createInstance(cfg) {
           method: 'POST',
           path: '/'+instanceId+'/agents/'+agentId+'/knowledge?method='+method,
           body: JSON.stringify(knowledge)
-        })
-        .then((res)=>{
-          return res.json();
         });
       },
       getInstanceKnowledge: function() {
         return request({
           method: 'GET',
           path: '/'+instanceId+'/instanceKnowledge'
-        })
-        .then((res)=>{
-          return res.json();
         })
         .then((json)=>{
           return json.knowledge;
@@ -208,9 +218,6 @@ export default function createInstance(cfg) {
           method: 'POST',
           path: '/'+instanceId+'/instanceKnowledge?method='+method,
           body: JSON.stringify(knowledge)
-        })
-        .then((res)=>{
-          return res.json();
         })
         .then((json)=>{
           return json;
@@ -225,8 +232,8 @@ export default function createInstance(cfg) {
           });
         };
 
-        if (!running) {
-          return Promise.reject('Can\'t update the instance, it has been destroyed.');
+        if (status !== STATUS.running) {
+          return Promise.reject('Can\'t update the instance, it is not running.');
         }
         else if (_.isUndefined(delay)) {
           return singleUpdate();
