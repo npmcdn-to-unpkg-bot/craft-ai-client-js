@@ -14,9 +14,10 @@ const CRAFT_CFG = {
   appSecret: process.env.CRAFT_APP_SECRET
 }
 
-describe('craftai', () => {
-  describe('(<config>)', () => {
-    it('should create an instance with valid APP_ID/APP_SECRET', () => {
+describe('craftai', function() {
+  describe('(<config>)', function() {
+    it('should create an instance with valid APP_ID/APP_SECRET', function() {
+      this.timeout(5000);
       return craftai(CRAFT_CFG)
         .then(instance => {
           assert.notEqual(instance.instanceId , undefined);
@@ -30,7 +31,7 @@ describe('craftai', () => {
           assert.fail(err, undefined);
         });
     });
-    it('should fail with invalid APP_ID/APP_SECRET', () => {
+    it('should fail with invalid APP_ID/APP_SECRET', function() {
       return craftai(_.extend(CRAFT_CFG, {
           appId: 'baaaah',
           appSecret: 'booooh'
@@ -39,7 +40,7 @@ describe('craftai', () => {
           assert.notEqual(err , undefined);
         });
     });
-    it('should fail with missing project owner', () => {
+    it('should fail with missing project owner', function() {
       return craftai(_.extend(CRAFT_CFG, {
           owner: undefined
         }))
@@ -47,7 +48,7 @@ describe('craftai', () => {
           assert.notEqual(err , undefined);
         });
     });
-    it('should fail with missing project name', () => {
+    it('should fail with missing project name', function() {
       return craftai(_.extend(CRAFT_CFG, {
           name: undefined
         }))
@@ -55,7 +56,7 @@ describe('craftai', () => {
           assert.notEqual(err , undefined);
         });
     });
-    it('should fail with missing project version', () => {
+    it('should fail with missing project version', function() {
       return craftai(_.extend(CRAFT_CFG, {
           version: undefined
         }))
