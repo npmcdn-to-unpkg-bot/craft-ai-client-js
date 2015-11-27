@@ -39,5 +39,29 @@ describe('craftai', () => {
           assert.notEqual(err , undefined);
         });
     });
+    it('should fail with missing project owner', () => {
+      return craftai(_.extend(CRAFT_CFG, {
+          owner: undefined
+        }))
+        .catch(err => {
+          assert.notEqual(err , undefined);
+        });
+    });
+    it('should fail with missing project name', () => {
+      return craftai(_.extend(CRAFT_CFG, {
+          name: undefined
+        }))
+        .catch(err => {
+          assert.notEqual(err , undefined);
+        });
+    });
+    it('should fail with missing project version', () => {
+      return craftai(_.extend(CRAFT_CFG, {
+          version: undefined
+        }))
+        .catch(err => {
+          assert.notEqual(err , undefined);
+        });
+    });
   });
 });

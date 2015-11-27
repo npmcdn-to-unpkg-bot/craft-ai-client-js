@@ -1,27 +1,30 @@
 import _ from 'lodash';
+import DEFAULTS from './defaults';
 import fetch from 'isomorphic-fetch';
+import STATUS from './status';
 import WebSocket from 'ws';
 
 export const IN_BROWSER = typeof window !== 'undefined';
-export const STATUS = {
-  starting: 'starting',
-  running: 'running',
-  stopping: 'stopping',
-  destroyed: 'destroyed'
-};
-
-
-const CRAFT_API_URL = 'api.craft.ai';
-const CRAFT_HUB_URL = 'hub.craft.ai';
 
 const START_SUFFIX = '#s';
 const CANCEL_SUFFIX = '#c'; // START_SUFFIX.length === CANCEL_SUFFIX.length
 
 export default function createInstance(cfg) {
+  cfg = _.defaults(cfg, DEFAULTS);
+  if (!_.has(cfg, 'owner')) {
+    return Promise.reject(new Error('Unable to create an instance, the project owner was not provided.'));
+  }
+  if (!_.has(cfg, 'name')) {
+    return Promise.reject(new Error('Unable to create an instance, the project name was not provided.'));
+  }
+  if (!_.has(cfg, 'version')) {
+    return Promise.reject(new Error('Unable to create an instance, the project version was not provided.'));
+  }
+
   const appId = cfg.appId;
   const appSecret = cfg.appSecret;
-  const httpUrl = 'https://' + CRAFT_API_URL + '/v1/' + cfg.owner + '/' + cfg.name + '/' + cfg.version;
-  const wsUrl = 'wss://' + CRAFT_API_URL + '/v1/' + cfg.owner + '/' + cfg.name + '/' + cfg.version;
+  const httpUrl = cfg.httpApiUrl + '/' + cfg.owner + '/' + cfg.name + '/' + cfg.version;
+  const wsUrl = cfg.wsApiUrl + '/' + cfg.owner + '/' + cfg.name + '/' + cfg.version;
 
   let instanceId;
   let status = STATUS.starting;
@@ -122,7 +125,7 @@ export default function createInstance(cfg) {
         return status;
       },
       getGoogleAuthUri: function(successUri, failureUri) {
-        return 'https://' + CRAFT_HUB_URL + '/v1/auth/google?x-craft-ai-app-id=' +
+        return cfg.hubApiUrl + '/auth/google?x-craft-ai-app-id=' +
           appId + '&x-craft-ai-app-secret=' + appSecret + '&success_uri=' +
           successUri + '&failure_uri=' + failureUri + '?failure=true';
       },
