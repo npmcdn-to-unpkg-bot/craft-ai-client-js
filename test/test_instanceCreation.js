@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import assert from 'assert';
-import craftai from '../src/runtime.js';
+import craftai, { STATUS } from '../src';
 import dotenv from 'dotenv';
 
 dotenv.config({silent: true});
@@ -20,10 +20,10 @@ describe('craftai', () => {
       return craftai(CRAFT_CFG)
         .then(instance => {
           assert.notEqual(instance.instanceId , undefined);
-          assert.equal(instance.getStatus() , 'running');
+          assert.equal(instance.getStatus() , STATUS.running);
           return instance.destroy()
             .then(() => {
-              assert.equal(instance.getStatus() , 'destroyed');
+              assert.equal(instance.getStatus() , STATUS.destroyed);
             });
         })
         .catch(err => {

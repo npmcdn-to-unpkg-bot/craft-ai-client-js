@@ -12,7 +12,7 @@
   "bugs": {
     "url": "https://github.com/craft-ai/craft-ai-client-js/issues"
   },
-  "main": "lib/runtime.js",
+  "main": "lib/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/craft-ai/craft-ai-client-js"
