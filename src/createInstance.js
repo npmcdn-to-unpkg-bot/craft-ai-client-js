@@ -1,10 +1,11 @@
 import _ from 'lodash';
 import DEFAULTS from './defaults';
 import fetch from 'isomorphic-fetch';
+import onExit from './onExit';
 import STATUS from './status';
 import WebSocket from 'ws';
 
-export const IN_BROWSER = typeof window !== 'undefined';
+const IN_BROWSER = typeof window !== 'undefined';
 
 const START_SUFFIX = '#s';
 const CANCEL_SUFFIX = '#c'; // START_SUFFIX.length === CANCEL_SUFFIX.length
@@ -113,13 +114,18 @@ export default function createInstance(cfg) {
     };
   };
 
+  // Function that'll be called when the instance is destroyed.
+  let cleanupDestroyOnExit = () => undefined;
+
   return request({
     method: 'PUT'
   })
   .then(json => {
+
     status = STATUS.running;
     instanceId = json.instance.instance_id;
-    return {
+
+    let instance = {
       id: instanceId,
       getStatus: function() {
         return status;
@@ -131,32 +137,18 @@ export default function createInstance(cfg) {
       },
       destroy: function() {
         status = STATUS.stopping;
-        if (IN_BROWSER === true) {
-          return new Promise((resolve, reject) => {
-            // Using directly a XMLHttpRequest to handle properly the destruction on the window destruction
-            let oReq = new XMLHttpRequest();
-            oReq.open('DELETE', httpUrl + '/' + instanceId, false);
-            oReq.setRequestHeader('content-type', 'application/json; charset=utf-8');
-            oReq.setRequestHeader('accept', '');
-            oReq.setRequestHeader('X-Craft-Ai-App-Id', appId);
-            oReq.setRequestHeader('X-Craft-Ai-App-Secret', appSecret);
-            oReq.send();
-            status = STATUS.destroyed; // This should be done when craft respond
-          });
-        }
-        else {
-          return request({
-            method: 'DELETE',
-            path: '/'+ instanceId
-          })
-          .then(function(res) {
-            status = STATUS.destroyed;
-          })
-          .catch(err => {
-            status = STATUS.destroyed;
-            return Promise.reject(err);
-          });
-        }
+        return request({
+          method: 'DELETE',
+          path: '/'+ instanceId
+        })
+        .then(() => {
+          cleanupDestroyOnExit();
+          status = STATUS.destroyed;
+        })
+        .catch(err => {
+          status = STATUS.destroyed;
+          return Promise.reject(err);
+        });
       },
       registerAction: function(name, start, cancel = () => undefined) {
         if (_.isUndefined(ws)) {
@@ -248,5 +240,26 @@ export default function createInstance(cfg) {
         }
       }
     };
+
+    if (cfg.destroyOnExit) {
+      cleanupDestroyOnExit = onExit(() => {
+        if (IN_BROWSER) {
+          // Using directly a XMLHttpRequest to make a synchronous call.
+          let oReq = new XMLHttpRequest();
+          oReq.open('DELETE', httpUrl + '/' + instance.id, false);
+          oReq.setRequestHeader('content-type', 'application/json; charset=utf-8');
+          oReq.setRequestHeader('accept', '');
+          oReq.setRequestHeader('X-Craft-Ai-App-Id', appId);
+          oReq.setRequestHeader('X-Craft-Ai-App-Secret', appSecret);
+          instance.status = STATUS.destroyed;
+          oReq.send();
+        }
+        else {
+          instance.destroy();
+        }
+      });
+    }
+
+    return instance;
   });
 }
