@@ -45,9 +45,9 @@ craftai({
 .then(function(instance) {
   // Use your instance here
 })
-.catch(function(error)) {
+.catch(function(error) {
   // Catch errors here
-}
+})
 ````
 
 ## 2. Register actions ##
@@ -84,9 +84,9 @@ instance.registerAction(
 .then(function() {
   // Continue work on the instance here
 })
-.catch(function(error)) {
+.catch(function(error) {
   // Catch errors here
-}
+})
 ````
 
 ## 3. Agents ##
@@ -100,9 +100,9 @@ instance.createAgent(
 .then(function() {
   // Continue work on the instance here
 })
-.catch(function(error)) {
+.catch(function(error) {
   // Catch errors here
-}
+})
 ````
 
 ### Destroy ###
@@ -118,9 +118,9 @@ instance.update()
 .then(function() {
   // Continue work on the instance here
 })
-.catch(function(error)) {
+.catch(function(error) {
   // Catch errors here
-}
+})
 ````
 
 ### Continuous regular decision ###
@@ -138,9 +138,9 @@ instance.getAgentKnowledge(<agent_id>)
 .then(function(knowledge) {
   // Use retrieved knowledge
 })
-.catch(function(error)) {
+.catch(function(error) {
   // Catch errors here
-}
+})
 ````
 
 #### Update the knowledge of an agent ####
@@ -155,19 +155,19 @@ instance.updateAgentKnowledge(<agent_id>, {
 .then(function() {
   // Continue work on the instance here
 })
-.catch(function(error)) {
+.catch(function(error) {
   // Catch errors here
-}
+})
 ````
 
-By default this method set the knowledge to the new value, erasing the previous
+By default this method **sets** the knowledge to the new value, erasing the previous
 one. If you want to merge the new knowledge value with the previous one you can
 specify the optional third parameter with the value _merge_.
 
 ### Instance knowledge ###
 
 In the same fashion, you can manipulate instance knowledge using
-`instance.getInstanceKnowledge` and `instance.getInstanceKnowledge`.
+`instance.getInstanceKnowledge` and `instance.updateInstanceKnowledge`.
 
 ## 6. Destroy ##
 
@@ -176,7 +176,7 @@ instance.destroy()
 .then(function() {
   // Instance destroyed here (this also stops updates)
 })
-.catch(function(error)) {
+.catch(function(error) {
   // Catch errors here
-}
+})
 ````
