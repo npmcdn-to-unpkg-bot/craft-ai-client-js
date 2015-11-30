@@ -20,7 +20,7 @@ describe('craftai', function() {
       this.timeout(5000);
       return craftai(CRAFT_CFG)
         .then(instance => {
-          assert.notEqual(instance.instanceId , undefined);
+          assert.notEqual(instance.id , undefined);
           assert.equal(instance.getStatus() , STATUS.running);
           return instance.destroy()
             .then(() => {
