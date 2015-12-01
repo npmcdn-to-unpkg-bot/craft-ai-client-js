@@ -40,7 +40,8 @@ craftai({
   name: '<project_name>',
   version: '<project_version>',
   appId: '<app_id>',
-  appSecret: '<app_secret>'
+  appSecret: '<app_secret>',
+  destroyOnExit: true/false
 })
 .then(function(instance) {
   // Use your instance here
@@ -49,6 +50,19 @@ craftai({
   // Catch errors here
 })
 ````
+
+### `destroyOnExit` ###
+
+If `true`, the instance will destroy itself when the window unloads or the
+process exits.
+
+- The **browser** version relies on the
+[_beforeunload_](https://developer.mozilla.org/en-US/docs/Web/Events/beforeunload)
+event.
+- The **nodejs** version relies on the
+[_uncaughtException_](https://nodejs.org/api/process.html#process_event_uncaughtexception),
+[_unhandledrejection_](https://nodejs.org/api/process.html#process_event_unhandledrejection),
+[_SIGINT_, _SIGTERM_, _SIGQUIT_ and _SIGHUP_](https://nodejs.org/api/process.html#process_signal_events) events.
 
 ## 2. Register actions ##
 
