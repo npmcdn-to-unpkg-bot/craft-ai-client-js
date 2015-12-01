@@ -120,7 +120,7 @@ export default function createInstance(cfg) {
     status = STATUS.running;
     instanceId = json.instance.instance_id;
     return {
-      instanceId: instanceId,
+      id: instanceId,
       getStatus: function() {
         return status;
       },
