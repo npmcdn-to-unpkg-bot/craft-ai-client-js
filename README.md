@@ -10,11 +10,29 @@ To setup your project, follow these following steps, you'll end up with
 
 ## Browser ##
 
-:construction:
+### Using [Browserify](http://browserify.org) or [Webpack](http://webpack.github.io) ###
+
+> :construction: The package is a work in progress, it is not yet published on 
+> [npm](https://www.npmjs.com) but can be directly installed from github.
+
+```sh
+npm install craft-ai/craft-ai-client-js --save
+```
+
+```js
+var craftai = require('craft-ai-client-js');
+```
+
+or using es2015 syntax
+
+```js
+import craftai from 'craft-ai-client-js';
+```
 
 ## Node.js ##
 
-> As the package is a work in progress it is not yet published on npm
+> :construction: The package is a work in progress, it is not yet published on 
+> [npm](https://www.npmjs.com) but can be directly installed from github.
 
 ```sh
 npm install craft-ai/craft-ai-client-js --save
