@@ -79,14 +79,14 @@ instance.registerAction(
     // - input, a javascript object containing the action input provided in the Behavior Tree
     if (/* everything is good */) {
       success({
-        output1: "<output1_value>",
-        output2: "<output2_value>"
+        output1: '<output1_value>',
+        output2: '<output2_value>'
       })
     }
     else {
       failure({
-        output1: "<output1_value>",
-        output2: "<output2_value>"
+        output1: '<output1_value>',
+        output2: '<output2_value>'
       })
     }
   },
@@ -111,8 +111,13 @@ instance.registerAction(
 instance.createAgent(
   '<bt_name>',
   <optional_initial_knowledge_content>)
-.then(function() {
+.then(function(agent) {
   // Continue work on the instance here
+  // agent = {
+  //   "id": ##,
+  //   "behavior": <bt_name>,
+  //   "knowledge": <optional_initial_knowledge_content>
+  // }
 })
 .catch(function(error) {
   // Catch errors here
