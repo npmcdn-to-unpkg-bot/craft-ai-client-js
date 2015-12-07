@@ -39,33 +39,44 @@ export default function createInstance(cfg) {
       headers: {}
     });
 
-    const url = httpUrl + r.path;
+    r.url = httpUrl + r.path;
     r.headers['X-Craft-Ai-App-Id'] = appId;
     r.headers['X-Craft-Ai-App-Secret'] = appSecret;
     r.headers['Content-Type'] = 'application/json; charset=utf-8';
     r.headers['accept'] = '';
 
-    return fetch(url, {
-      method: r.method,
-      headers:r.headers,
-      body: r.body
-    })
-    .catch(err => {
-      return Promise.reject(new errors.CraftAiNetworkError({
-        more: err.message
-      }));
-    })
-    .then(res => {
-      switch (res.status) {
-        case 200:
-          return res.json();
-        case 401:
-        case 403:
-          return Promise.reject(new errors.CraftAiCredentialsError());
-        default:
-          return Promise.reject(new errors.CraftAiUnknownError());
-      }
-    });
+    return fetch(r.url, r)
+    .catch(err => Promise.reject(new errors.CraftAiNetworkError({
+      more: err.message
+    })))
+    .then(res => res.json()
+      .catch(err => Promise.reject(new errors.CraftAiInternalError(
+        'Internal Error, the craft ai server responded an invalid json document.', {
+          request: r
+        }
+      )))
+      .then(res_content => {
+        switch (res.status) {
+          case 200:
+            return res_content;
+          case 401:
+          case 403:
+            return Promise.reject(new errors.CraftAiCredentialsError({
+              more: res_content.message,
+              request: r
+            }));
+          case 500:
+            return Promise.reject(new errors.CraftAiInternalError(res_content.message, {
+              request: r
+            }));
+          default:
+            return Promise.reject(new errors.CraftAiUnknownError({
+              more: res_content.message,
+              request: r
+            }));
+        }
+      })
+    );
   };
 
   let actions = {};

@@ -31,6 +31,14 @@ describe('instance', function() {
       return instance.createAgent('test/bts/bloup.bt')
         .catch(err => {
           expect(err).to.be.an.instanceof(errors.CraftAiError);
+          expect(err).to.be.an.instanceof(errors.CraftAiInternalError); // This shouldn't be an internal error.
+        });
+    });
+    it('should fail when using an invalid behavior', function() {
+      return instance.createAgent('test/bts/invalid_behavior.bt')
+        .catch(err => {
+          expect(err).to.be.an.instanceof(errors.CraftAiError);
+          expect(err).to.be.an.instanceof(errors.CraftAiInternalError); // This shouldn't be an internal error.
         });
     });
   });

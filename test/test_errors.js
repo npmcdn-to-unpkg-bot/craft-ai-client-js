@@ -39,11 +39,23 @@ describe('errors', function() {
     it('specializes Error', function() {
       expect(e).to.be.an.instanceof(Error);
     });
-    it('specializes errors.CraftAiCredentialsError', function() {
+    it('specializes errors.CraftAiError', function() {
       expect(e).to.be.an.instanceof(errors.CraftAiError);
     });
     it('has a default "message" property', function() {
       expect(e).to.have.property('message', 'Credentials error, make sure the given appId/appSecret are valid');
+    });
+  })
+  describe('.CraftAiInternalError', function() {
+    const e = new errors.CraftAiInternalError();
+    it('specializes Error', function() {
+      expect(e).to.be.an.instanceof(Error);
+    });
+    it('specializes errors.CraftAiError', function() {
+      expect(e).to.be.an.instanceof(errors.CraftAiError);
+    });
+    it('has a default "message" property', function() {
+      expect(e).to.have.property('message', 'Internal Error, see err.more for details');
     });
   })
 });

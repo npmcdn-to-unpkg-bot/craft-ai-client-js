@@ -53,9 +53,15 @@ let CraftAiCredentialsError = createCustomError(
   'Credentials error, make sure the given appId/appSecret are valid'
 );
 
+let CraftAiInternalError = createCustomError(
+  'CraftAiInternalError',
+  'Internal Error, see err.more for details'
+);
+
 export {
   CraftAiCredentialsError,
   CraftAiError,
+  CraftAiInternalError,
   CraftAiNetworkError,
   CraftAiUnknownError
 };
