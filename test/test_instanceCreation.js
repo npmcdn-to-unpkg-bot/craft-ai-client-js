@@ -22,6 +22,11 @@ describe('craftai', function() {
         .then(instance => {
           assert.notEqual(instance.id , undefined);
           assert.equal(instance.getStatus() , STATUS.running);
+          assert.equal(instance.cfg.owner , CRAFT_CFG.owner);
+          assert.equal(instance.cfg.name , CRAFT_CFG.name);
+          assert.equal(instance.cfg.version , CRAFT_CFG.version);
+          assert.equal(instance.cfg.appId , CRAFT_CFG.appId);
+          assert.equal(instance.cfg.appSecret , CRAFT_CFG.appSecret);
           return instance.destroy()
             .then(() => {
               assert.equal(instance.getStatus() , STATUS.destroyed);
