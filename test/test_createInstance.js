@@ -1,4 +1,4 @@
-import craftai, { STATUS } from '../src';
+import craftai, { errors, STATUS } from '../src';
 
 describe('craftai', function() {
   describe('(<config>)', function() {
@@ -20,36 +20,46 @@ describe('craftai', function() {
         })
     });
     it('should fail when using invalid APP_ID/APP_SECRET', function() {
-      return craftai(_.extend(CRAFT_CFG, {
+      return craftai(_.extend(_.clone(CRAFT_CFG), {
           appId: 'baaaah',
           appSecret: 'booooh'
         }))
         .catch(err => {
-          expect(err).to.be.ok;
+          expect(err).to.be.an.instanceof(errors.CraftAiError);
+          expect(err).to.be.an.instanceof(errors.CraftAiCredentialsError);
         });
     });
     it('should fail when using missing project owner', function() {
-      return craftai(_.extend(CRAFT_CFG, {
+      return craftai(_.extend(_.clone(CRAFT_CFG), {
           owner: undefined
         }))
         .catch(err => {
-          expect(err).to.be.ok;
+          expect(err).to.be.an.instanceof(errors.CraftAiError);
         });
     });
     it('should fail when using missing project name', function() {
-      return craftai(_.extend(CRAFT_CFG, {
+      return craftai(_.extend(_.clone(CRAFT_CFG), {
           name: undefined
         }))
         .catch(err => {
-          expect(err).to.be.ok;
+          expect(err).to.be.an.instanceof(errors.CraftAiError);
         });
     });
     it('should fail when using missing project version', function() {
-      return craftai(_.extend(CRAFT_CFG, {
+      return craftai(_.extend(_.clone(CRAFT_CFG), {
           version: undefined
         }))
         .catch(err => {
-          expect(err).to.be.ok;
+          expect(err).to.be.an.instanceof(errors.CraftAiError);
+        });
+    });
+    it('should fail when using invalid API root', function() {
+      return craftai(_.extend(_.clone(CRAFT_CFG), {
+          httpApiUrl: 'https://foo.bar'
+        }))
+        .catch(err => {
+          expect(err).to.be.an.instanceof(errors.CraftAiError);
+          expect(err).to.be.an.instanceof(errors.CraftAiNetworkError);
         });
     });
   });

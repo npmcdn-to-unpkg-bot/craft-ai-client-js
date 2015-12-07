@@ -1,4 +1,4 @@
-import craftai, { STATUS } from '../src';
+import craftai, { errors, STATUS } from '../src';
 
 describe('instance', function() {
   this.timeout(5000);
@@ -30,7 +30,7 @@ describe('instance', function() {
     it('should fail when using a non-existing behavior', function() {
       return instance.createAgent('test/bts/bloup.bt')
         .catch(err => {
-          expect(err).to.be.ok;
+          expect(err).to.be.an.instanceof(errors.CraftAiError);
         });
     });
   });

@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import * as errors from './errors';
 import DEFAULTS from './defaults';
 import fetch from 'isomorphic-fetch';
 import onExit from './onExit';
@@ -13,13 +14,13 @@ const CANCEL_SUFFIX = '#c'; // START_SUFFIX.length === CANCEL_SUFFIX.length
 export default function createInstance(cfg) {
   cfg = _.defaults(cfg, DEFAULTS);
   if (!_.has(cfg, 'owner')) {
-    return Promise.reject(new Error('Unable to create an instance, the project owner was not provided.'));
+    return Promise.reject(new errors.CraftAiError('Unable to create an instance, the project owner was not provided.'));
   }
   if (!_.has(cfg, 'name')) {
-    return Promise.reject(new Error('Unable to create an instance, the project name was not provided.'));
+    return Promise.reject(new errors.CraftAiError('Unable to create an instance, the project name was not provided.'));
   }
   if (!_.has(cfg, 'version')) {
-    return Promise.reject(new Error('Unable to create an instance, the project version was not provided.'));
+    return Promise.reject(new errors.CraftAiError('Unable to create an instance, the project version was not provided.'));
   }
 
   const appId = cfg.appId;
@@ -49,15 +50,20 @@ export default function createInstance(cfg) {
       headers:r.headers,
       body: r.body
     })
-    .then((res) => {
+    .catch(err => {
+      return Promise.reject(new errors.CraftAiNetworkError({
+        more: err.message
+      }));
+    })
+    .then(res => {
       switch (res.status) {
         case 200:
           return res.json();
         case 401:
         case 403:
-          return Promise.reject('Unauthorized access please check the given appId/appSecret');
+          return Promise.reject(new errors.CraftAiCredentialsError());
         default:
-          return Promise.reject('Unexpected error');
+          return Promise.reject(new errors.CraftAiUnknownError());
       }
     });
   };
@@ -229,7 +235,7 @@ export default function createInstance(cfg) {
         };
 
         if (status !== STATUS.running) {
-          return Promise.reject('Can\'t update the instance, it is not running.');
+          return Promise.reject(new errors.CraftAiError('Can\'t update the instance, it is not running.'));
         }
         else if (_.isUndefined(delay)) {
           return singleUpdate();
