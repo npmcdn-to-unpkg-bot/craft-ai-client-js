@@ -12,7 +12,7 @@ To setup your project, follow these following steps, you'll end up with
 
 ### Using [Browserify](http://browserify.org) or [Webpack](http://webpack.github.io) ###
 
-> :construction: The package is a work in progress, it is not yet published on 
+> :construction: The package is a work in progress, it is not yet published on
 > [npm](https://www.npmjs.com) but can be directly installed from github.
 
 ```sh
@@ -31,7 +31,7 @@ import craftai from 'craft-ai-client-js';
 
 ## Node.js ##
 
-> :construction: The package is a work in progress, it is not yet published on 
+> :construction: The package is a work in progress, it is not yet published on
 > [npm](https://www.npmjs.com) but can be directly installed from github.
 
 ```sh
@@ -63,6 +63,12 @@ craftai({
 })
 .then(function(instance) {
   // Use your instance here
+  // instance = {
+  //   "id": <instance_id>,
+  //   "cfg": <instance_cfg>, // as provided to `craftai(...)`
+  //   "getStatus": function() {...}, // Retrieve the current status of the instance
+  //   ... // See below for other methods
+  // }
 })
 .catch(function(error) {
   // Catch errors here
@@ -132,7 +138,7 @@ instance.createAgent(
 .then(function(agent) {
   // Continue work on the instance here
   // agent = {
-  //   "id": ##,
+  //   "id": <agent_id>,
   //   "behavior": <bt_name>,
   //   "knowledge": <optional_initial_knowledge_content>
   // }

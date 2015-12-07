@@ -127,6 +127,7 @@ export default function createInstance(cfg) {
 
     let instance = {
       id: instanceId,
+      cfg: cfg,
       getStatus: function() {
         return status;
       },
