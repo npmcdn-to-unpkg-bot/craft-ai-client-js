@@ -58,7 +58,13 @@ let CraftAiInternalError = createCustomError(
   'Internal Error, see err.more for details'
 );
 
+let CraftAiBadRequestError = createCustomError(
+  'CraftAiBadRequestError',
+  'Bad Request, see err.more for details'
+);
+
 export {
+  CraftAiBadRequestError,
   CraftAiCredentialsError,
   CraftAiError,
   CraftAiInternalError,

@@ -65,6 +65,11 @@ export default function createInstance(cfg) {
               more: res_content.message,
               request: r
             }));
+          case 404:
+            return Promise.reject(new errors.CraftAiBadRequestError({
+              more: res_content.message,
+              request: r
+            }));
           case 500:
             return Promise.reject(new errors.CraftAiInternalError(res_content.message, {
               request: r
@@ -72,7 +77,8 @@ export default function createInstance(cfg) {
           default:
             return Promise.reject(new errors.CraftAiUnknownError({
               more: res_content.message,
-              request: r
+              request: r,
+              status: res.status
             }));
         }
       })

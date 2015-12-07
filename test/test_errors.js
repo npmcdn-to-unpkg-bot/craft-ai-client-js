@@ -58,4 +58,16 @@ describe('errors', function() {
       expect(e).to.have.property('message', 'Internal Error, see err.more for details');
     });
   })
+  describe('.CraftAiBadRequestError', function() {
+    const e = new errors.CraftAiBadRequestError();
+    it('specializes Error', function() {
+      expect(e).to.be.an.instanceof(Error);
+    });
+    it('specializes errors.CraftAiError', function() {
+      expect(e).to.be.an.instanceof(errors.CraftAiError);
+    });
+    it('has a default "message" property', function() {
+      expect(e).to.have.property('message', 'Bad Request, see err.more for details');
+    });
+  })
 });
