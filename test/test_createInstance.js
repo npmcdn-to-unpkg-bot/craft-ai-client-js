@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import assert from 'assert';
 import craftai, { STATUS } from '../src';
 import dotenv from 'dotenv';
+import { expect } from 'chai';
 
 dotenv.config({silent: true});
 dotenv.load();
@@ -20,21 +20,18 @@ describe('craftai', function() {
       this.timeout(5000);
       return craftai(CRAFT_CFG)
         .then(instance => {
-          assert.notEqual(instance.id , undefined);
-          assert.equal(instance.getStatus() , STATUS.running);
-          assert.equal(instance.cfg.owner , CRAFT_CFG.owner);
-          assert.equal(instance.cfg.name , CRAFT_CFG.name);
-          assert.equal(instance.cfg.version , CRAFT_CFG.version);
-          assert.equal(instance.cfg.appId , CRAFT_CFG.appId);
-          assert.equal(instance.cfg.appSecret , CRAFT_CFG.appSecret);
+          expect(instance.id).to.be.ok;
+          expect(instance.getStatus()).to.be.equal(STATUS.running);
+          expect(instance.cfg.owner).to.be.equal(CRAFT_CFG.owner);
+          expect(instance.cfg.name).to.be.equal(CRAFT_CFG.name);
+          expect(instance.cfg.version).to.be.equal(CRAFT_CFG.version);
+          expect(instance.cfg.appId).to.be.equal(CRAFT_CFG.appId);
+          expect(instance.cfg.appSecret).to.be.equal(CRAFT_CFG.appSecret);
           return instance.destroy()
             .then(() => {
-              assert.equal(instance.getStatus() , STATUS.destroyed);
+              expect(instance.getStatus()).to.be.equal(STATUS.destroyed);
             });
         })
-        .catch(err => {
-          assert.fail(err, undefined);
-        });
     });
     it('should fail when using invalid APP_ID/APP_SECRET', function() {
       return craftai(_.extend(CRAFT_CFG, {
@@ -42,7 +39,7 @@ describe('craftai', function() {
           appSecret: 'booooh'
         }))
         .catch(err => {
-          assert.notEqual(err , undefined);
+          expect(err).to.be.ok;
         });
     });
     it('should fail when using missing project owner', function() {
@@ -50,7 +47,7 @@ describe('craftai', function() {
           owner: undefined
         }))
         .catch(err => {
-          assert.notEqual(err , undefined);
+          expect(err).to.be.ok;
         });
     });
     it('should fail when using missing project name', function() {
@@ -58,7 +55,7 @@ describe('craftai', function() {
           name: undefined
         }))
         .catch(err => {
-          assert.notEqual(err , undefined);
+          expect(err).to.be.ok;
         });
     });
     it('should fail when using missing project version', function() {
@@ -66,7 +63,7 @@ describe('craftai', function() {
           version: undefined
         }))
         .catch(err => {
-          assert.notEqual(err , undefined);
+          expect(err).to.be.ok;
         });
     });
   });

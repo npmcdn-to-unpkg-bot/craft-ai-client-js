@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import assert from 'assert';
 import craftai, { STATUS } from '../src';
 import dotenv from 'dotenv';
+import { expect } from 'chai';
 
 dotenv.config({silent: true});
 dotenv.load();
@@ -20,33 +20,31 @@ describe('instance', function() {
   beforeEach(function() {
     return craftai(CRAFT_CFG)
       .then(newInstance => {
-        assert.notEqual(newInstance.id , undefined);
+        expect(newInstance.id).to.be.ok;
         instance = newInstance;
-      });
+      })
   });
   afterEach(function() {
     if (instance) {
       return instance.destroy()
         .then(() => {
-          assert.equal(instance.getStatus() , STATUS.destroyed);
+          expect(instance.getStatus()).to.equal(STATUS.destroyed);
           instance = undefined;
-        });
+        })
     }
   });
   describe('.createAgent(<bt_name>, <initial_knowledge_content>)', function() {
     it('should succeed when using a valid behavior', function() {
       return instance.createAgent('test/bts/test.bt')
         .then(agent => {
-          assert.notEqual(agent.id , undefined);
+          expect(agent).to.be.ok;
+          expect(agent.id).to.be.equal(0);
         })
-        .catch(err => {
-          assert.fail(err, undefined);
-        });
     });
     it('should fail when using a non-existing behavior', function() {
       return instance.createAgent('test/bts/bloup.bt')
         .catch(err => {
-          assert.notEqual(err , undefined);
+          expect(err).to.be.ok;
         });
     });
   });
