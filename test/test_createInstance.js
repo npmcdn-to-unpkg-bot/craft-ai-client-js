@@ -16,7 +16,7 @@ const CRAFT_CFG = {
 
 describe('craftai', function() {
   describe('(<config>)', function() {
-    it('should create an instance with valid APP_ID/APP_SECRET', function() {
+    it('should create an instance when using valid APP_ID/APP_SECRET', function() {
       this.timeout(5000);
       return craftai(CRAFT_CFG)
         .then(instance => {
@@ -36,7 +36,7 @@ describe('craftai', function() {
           assert.fail(err, undefined);
         });
     });
-    it('should fail with invalid APP_ID/APP_SECRET', function() {
+    it('should fail when using invalid APP_ID/APP_SECRET', function() {
       return craftai(_.extend(CRAFT_CFG, {
           appId: 'baaaah',
           appSecret: 'booooh'
@@ -45,7 +45,7 @@ describe('craftai', function() {
           assert.notEqual(err , undefined);
         });
     });
-    it('should fail with missing project owner', function() {
+    it('should fail when using missing project owner', function() {
       return craftai(_.extend(CRAFT_CFG, {
           owner: undefined
         }))
@@ -53,7 +53,7 @@ describe('craftai', function() {
           assert.notEqual(err , undefined);
         });
     });
-    it('should fail with missing project name', function() {
+    it('should fail when using missing project name', function() {
       return craftai(_.extend(CRAFT_CFG, {
           name: undefined
         }))
@@ -61,7 +61,7 @@ describe('craftai', function() {
           assert.notEqual(err , undefined);
         });
     });
-    it('should fail with missing project version', function() {
+    it('should fail when using missing project version', function() {
       return craftai(_.extend(CRAFT_CFG, {
           version: undefined
         }))
