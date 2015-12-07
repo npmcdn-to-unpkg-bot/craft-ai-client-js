@@ -26,6 +26,13 @@ describe('instance.createAgent(<bt_name>, <initial_knowledge_content>)', functio
         expect(agent.id).to.be.at.least(0);
       })
   });
+  it('should fail when using an undefined behavior', function() {
+    return instance.createAgent()
+      .catch(err => {
+        expect(err).to.be.an.instanceof(errors.CraftAiError);
+        expect(err).to.be.an.instanceof(errors.CraftAiBadRequestError);
+      });
+  });
   it('should fail when using a non-existing behavior', function() {
     return instance.createAgent('test/bts/bloup.bt')
       .catch(err => {

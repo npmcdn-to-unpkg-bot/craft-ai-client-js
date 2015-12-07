@@ -59,4 +59,11 @@ describe('instance.getAgentKnowledge(<agent_id>)', function() {
         expect(err).to.be.an.instanceof(errors.CraftAiBadRequestError);
       });
   });
+  it('should fail for undefined agents', function() {
+    return instance.getAgentKnowledge()
+      .catch(err => {
+        expect(err).to.be.an.instanceof(errors.CraftAiError);
+        expect(err).to.be.an.instanceof(errors.CraftAiBadRequestError);
+      });
+  });
 });

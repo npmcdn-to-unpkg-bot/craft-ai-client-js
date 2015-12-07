@@ -34,6 +34,7 @@ describe('craftai(<config>)', function() {
       }))
       .catch(err => {
         expect(err).to.be.an.instanceof(errors.CraftAiError);
+        expect(err).to.be.an.instanceof(errors.CraftAiBadRequestError);
       });
   });
   it('should fail when using missing project name', function() {
@@ -42,6 +43,7 @@ describe('craftai(<config>)', function() {
       }))
       .catch(err => {
         expect(err).to.be.an.instanceof(errors.CraftAiError);
+        expect(err).to.be.an.instanceof(errors.CraftAiBadRequestError);
       });
   });
   it('should fail when using missing project version', function() {
@@ -50,6 +52,7 @@ describe('craftai(<config>)', function() {
       }))
       .catch(err => {
         expect(err).to.be.an.instanceof(errors.CraftAiError);
+        expect(err).to.be.an.instanceof(errors.CraftAiBadRequestError);
       });
   });
   it('should fail when using invalid API root', function() {

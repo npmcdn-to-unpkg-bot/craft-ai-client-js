@@ -14,13 +14,13 @@ const CANCEL_SUFFIX = '#c'; // START_SUFFIX.length === CANCEL_SUFFIX.length
 export default function createInstance(cfg) {
   cfg = _.defaults(cfg, DEFAULTS);
   if (!_.has(cfg, 'owner')) {
-    return Promise.reject(new errors.CraftAiError('Unable to create an instance, the project owner was not provided.'));
+    return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to create an instance with no project owner provided.'));
   }
   if (!_.has(cfg, 'name')) {
-    return Promise.reject(new errors.CraftAiError('Unable to create an instance, the project name was not provided.'));
+    return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to create an instance with no project name provided.'));
   }
   if (!_.has(cfg, 'version')) {
-    return Promise.reject(new errors.CraftAiError('Unable to create an instance, the project version was not provided.'));
+    return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to create an instance with no project version provided.'));
   }
 
   const appId = cfg.appId;
@@ -195,6 +195,10 @@ export default function createInstance(cfg) {
         });
       },
       createAgent: function(behavior, knowledge = {}) {
+        if (_.isUndefined(behavior)) {
+          return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to create an agent with no behavior provided.'));
+        }
+
         return request({
           method: 'PUT',
           path: '/'+instanceId+'/agents',
@@ -208,6 +212,10 @@ export default function createInstance(cfg) {
         });
       },
       getAgentKnowledge: function(agentId) {
+        if (_.isUndefined(agentId)) {
+          return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to retrieve agent knowledge with no agentId provided.'));
+        }
+
         return request({
           method: 'GET',
           path: '/'+instanceId+'/agents/'+agentId+'/knowledge'
@@ -216,7 +224,11 @@ export default function createInstance(cfg) {
           return json.knowledge;
         });
       },
-      updateAgentKnowledge: function(agentId, knowledge, method='set') {
+      updateAgentKnowledge: function(agentId, knowledge={}, method='set') {
+        if (_.isUndefined(agentId)) {
+          return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to update agent knowledge with no agentId provided.'));
+        }
+
         return request({
           method: 'POST',
           path: '/'+instanceId+'/agents/'+agentId+'/knowledge?method='+method,
@@ -232,7 +244,7 @@ export default function createInstance(cfg) {
           return json.knowledge;
         });
       },
-      updateInstanceKnowledge: function(knowledge, method='set') {
+      updateInstanceKnowledge: function(knowledge={}, method='set') {
         return request({
           method: 'POST',
           path: '/'+instanceId+'/instanceKnowledge?method='+method,
