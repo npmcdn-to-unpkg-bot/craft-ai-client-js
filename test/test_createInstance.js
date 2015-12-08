@@ -77,6 +77,7 @@ describe('craftai(<config>)', function() {
       });
   });
   it('should fail when using invalid API root', function() {
+    this.timeout(8000);
     return craftai(_.extend(_.clone(CRAFT_CFG), {
         httpApiUrl: 'https://foo.bar'
       }))
