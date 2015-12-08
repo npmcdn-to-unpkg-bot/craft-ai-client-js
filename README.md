@@ -1,7 +1,10 @@
-# craft-ai-client-js
-craft ai API isomorphic javascript client
+# craft-ai-client-js #
 
-[![Build Status](https://travis-ci.org/craft-ai/craft-ai-client-js.svg?branch=master)](https://travis-ci.org/craft-ai/craft-ai-client-js)
+[**craft ai**](http://craft.ai) API isomorphic javascript client, **craft ai**
+is an AI engine providing a visual editor and simple APIs to easily add
+contextual and personalized automation in mobile, web and IoT apps.
+
+[![Version](https://img.shields.io/npm/v/craft-ai.svg?style=flat-square)](https://npmjs.org/package/craft-ai) [![Build](https://img.shields.io/travis/craft-ai/craft-ai-client-js/master.svg?style=flat-square)](https://travis-ci.org/craft-ai/craft-ai-client-js) [![License](https://img.shields.io/badge/license-BSD--3--Clause-42358A.svg?style=flat-square)](LICENSE)
 
 # Setup #
 
@@ -12,40 +15,34 @@ To setup your project, follow these following steps, you'll end up with
 
 ### Using [Browserify](http://browserify.org) or [Webpack](http://webpack.github.io) ###
 
-> :construction: The package is a work in progress, it is not yet published on
-> [npm](https://www.npmjs.com) but can be directly installed from github.
-
 ```sh
-npm install craft-ai/craft-ai-client-js --save
+npm install craft-ai --save
 ```
 
 ```js
-var craftai = require('craft-ai-client-js');
+var craftai = require('craft-ai');
 ```
 
 or using es2015 syntax
 
 ```js
-import craftai from 'craft-ai-client-js';
+import craftai from 'craft-ai';
 ```
 
 ## Node.js ##
 
-> :construction: The package is a work in progress, it is not yet published on
-> [npm](https://www.npmjs.com) but can be directly installed from github.
-
 ```sh
-npm install craft-ai/craft-ai-client-js --save
+npm install craft-ai --save
 ```
 
 ```js
-var craftai = require('craft-ai-client-js');
+var craftai = require('craft-ai');
 ```
 
 or using es2015 syntax
 
 ```js
-import craftai from 'craft-ai-client-js';
+import craftai from 'craft-ai';
 ```
 
 # API #
