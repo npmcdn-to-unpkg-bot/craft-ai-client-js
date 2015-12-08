@@ -28,7 +28,28 @@ describe('craftai(<config>)', function() {
         expect(err).to.be.an.instanceof(errors.CraftAiCredentialsError);
       });
   });
-  it('should fail when using missing project owner', function() {
+  it('should fail when using a missing project owner', function() {
+    return craftai(_.omit(_.clone(CRAFT_CFG), 'owner'))
+      .catch(err => {
+        expect(err).to.be.an.instanceof(errors.CraftAiError);
+        expect(err).to.be.an.instanceof(errors.CraftAiBadRequestError);
+      });
+  });
+  it('should fail when using a missing project name', function() {
+    return craftai(_.omit(_.clone(CRAFT_CFG), 'name'))
+      .catch(err => {
+        expect(err).to.be.an.instanceof(errors.CraftAiError);
+        expect(err).to.be.an.instanceof(errors.CraftAiBadRequestError);
+      });
+  });
+  it('should fail when using a missing project version', function() {
+    return craftai(_.omit(_.clone(CRAFT_CFG), 'version'))
+      .catch(err => {
+        expect(err).to.be.an.instanceof(errors.CraftAiError);
+        expect(err).to.be.an.instanceof(errors.CraftAiBadRequestError);
+      });
+  });
+  it('should fail when using an invalid project owner', function() {
     return craftai(_.extend(_.clone(CRAFT_CFG), {
         owner: undefined
       }))
@@ -37,7 +58,7 @@ describe('craftai(<config>)', function() {
         expect(err).to.be.an.instanceof(errors.CraftAiBadRequestError);
       });
   });
-  it('should fail when using missing project name', function() {
+  it('should fail when using an invalid project name', function() {
     return craftai(_.extend(_.clone(CRAFT_CFG), {
         name: undefined
       }))
@@ -46,7 +67,7 @@ describe('craftai(<config>)', function() {
         expect(err).to.be.an.instanceof(errors.CraftAiBadRequestError);
       });
   });
-  it('should fail when using missing project version', function() {
+  it('should fail when using an invalid project version', function() {
     return craftai(_.extend(_.clone(CRAFT_CFG), {
         version: undefined
       }))

@@ -13,14 +13,14 @@ const CANCEL_SUFFIX = '#c'; // START_SUFFIX.length === CANCEL_SUFFIX.length
 
 export default function createInstance(cfg) {
   cfg = _.defaults(cfg, DEFAULTS);
-  if (!_.has(cfg, 'owner')) {
-    return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to create an instance with no project owner provided.'));
+  if (!_.has(cfg, 'owner') || !_.isString(cfg.owner)) {
+    return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to create an instance with no or invalid project owner provided.'));
   }
-  if (!_.has(cfg, 'name')) {
-    return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to create an instance with no project name provided.'));
+  if (!_.has(cfg, 'name') || !_.isString(cfg.name)) {
+    return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to create an instance with no or invalid project name provided.'));
   }
-  if (!_.has(cfg, 'version')) {
-    return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to create an instance with no project version provided.'));
+  if (!_.has(cfg, 'version') || !_.isString(cfg.version)) {
+    return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to create an instance with no or invalid project version provided.'));
   }
 
   const appId = cfg.appId;
