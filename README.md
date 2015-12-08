@@ -4,7 +4,7 @@
 is an AI engine providing a visual editor and simple APIs to easily add
 contextual and personalized automation in mobile, web and IoT apps.
 
-[![Build Status](https://travis-ci.org/craft-ai/craft-ai-client-js.svg?branch=master)](https://travis-ci.org/craft-ai/craft-ai-client-js)
+[![Version](https://img.shields.io/npm/v/craft-ai.svg?style=flat-square)](https://npmjs.org/package/craft-ai) [![Build](https://img.shields.io/travis/craft-ai/craft-ai-client-js/master.svg?style=flat-square)](https://travis-ci.org/craft-ai/craft-ai-client-js) [![License](https://img.shields.io/badge/license-BSD--3--Clause-42358A.svg?style=flat-square)](LICENSE)
 
 # Setup #
 
