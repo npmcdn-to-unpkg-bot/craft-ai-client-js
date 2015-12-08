@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import * as errors from './errors';
 import DEFAULTS from './defaults';
 import fetch from 'isomorphic-fetch';
 import onExit from './onExit';
@@ -12,14 +13,14 @@ const CANCEL_SUFFIX = '#c'; // START_SUFFIX.length === CANCEL_SUFFIX.length
 
 export default function createInstance(cfg) {
   cfg = _.defaults(cfg, DEFAULTS);
-  if (!_.has(cfg, 'owner')) {
-    return Promise.reject(new Error('Unable to create an instance, the project owner was not provided.'));
+  if (!_.has(cfg, 'owner') || !_.isString(cfg.owner)) {
+    return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to create an instance with no or invalid project owner provided.'));
   }
-  if (!_.has(cfg, 'name')) {
-    return Promise.reject(new Error('Unable to create an instance, the project name was not provided.'));
+  if (!_.has(cfg, 'name') || !_.isString(cfg.name)) {
+    return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to create an instance with no or invalid project name provided.'));
   }
-  if (!_.has(cfg, 'version')) {
-    return Promise.reject(new Error('Unable to create an instance, the project version was not provided.'));
+  if (!_.has(cfg, 'version') || !_.isString(cfg.version)) {
+    return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to create an instance with no or invalid project version provided.'));
   }
 
   const appId = cfg.appId;
@@ -38,28 +39,50 @@ export default function createInstance(cfg) {
       headers: {}
     });
 
-    const url = httpUrl + r.path;
+    r.url = httpUrl + r.path;
     r.headers['X-Craft-Ai-App-Id'] = appId;
     r.headers['X-Craft-Ai-App-Secret'] = appSecret;
     r.headers['Content-Type'] = 'application/json; charset=utf-8';
     r.headers['accept'] = '';
 
-    return fetch(url, {
-      method: r.method,
-      headers:r.headers,
-      body: r.body
-    })
-    .then((res) => {
-      switch (res.status) {
-        case 200:
-          return res.json();
-        case 401:
-        case 403:
-          return Promise.reject('Unauthorized access please check the given appId/appSecret');
-        default:
-          return Promise.reject('Unexpected error');
-      }
-    });
+    return fetch(r.url, r)
+    .catch(err => Promise.reject(new errors.CraftAiNetworkError({
+      more: err.message
+    })))
+    .then(res => res.json()
+      .catch(err => Promise.reject(new errors.CraftAiInternalError(
+        'Internal Error, the craft ai server responded an invalid json document.', {
+          request: r
+        }
+      )))
+      .then(res_content => {
+        switch (res.status) {
+          case 200:
+            return res_content;
+          case 401:
+          case 403:
+            return Promise.reject(new errors.CraftAiCredentialsError({
+              more: res_content.message,
+              request: r
+            }));
+          case 404:
+            return Promise.reject(new errors.CraftAiBadRequestError({
+              more: res_content.message,
+              request: r
+            }));
+          case 500:
+            return Promise.reject(new errors.CraftAiInternalError(res_content.message, {
+              request: r
+            }));
+          default:
+            return Promise.reject(new errors.CraftAiUnknownError({
+              more: res_content.message,
+              request: r,
+              status: res.status
+            }));
+        }
+      })
+    );
   };
 
   let actions = {};
@@ -172,6 +195,10 @@ export default function createInstance(cfg) {
         });
       },
       createAgent: function(behavior, knowledge = {}) {
+        if (_.isUndefined(behavior)) {
+          return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to create an agent with no behavior provided.'));
+        }
+
         return request({
           method: 'PUT',
           path: '/'+instanceId+'/agents',
@@ -185,6 +212,10 @@ export default function createInstance(cfg) {
         });
       },
       getAgentKnowledge: function(agentId) {
+        if (_.isUndefined(agentId)) {
+          return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to retrieve agent knowledge with no agentId provided.'));
+        }
+
         return request({
           method: 'GET',
           path: '/'+instanceId+'/agents/'+agentId+'/knowledge'
@@ -193,7 +224,11 @@ export default function createInstance(cfg) {
           return json.knowledge;
         });
       },
-      updateAgentKnowledge: function(agentId, knowledge, method='set') {
+      updateAgentKnowledge: function(agentId, knowledge={}, method='set') {
+        if (_.isUndefined(agentId)) {
+          return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to update agent knowledge with no agentId provided.'));
+        }
+
         return request({
           method: 'POST',
           path: '/'+instanceId+'/agents/'+agentId+'/knowledge?method='+method,
@@ -209,7 +244,7 @@ export default function createInstance(cfg) {
           return json.knowledge;
         });
       },
-      updateInstanceKnowledge: function(knowledge, method='set') {
+      updateInstanceKnowledge: function(knowledge={}, method='set') {
         return request({
           method: 'POST',
           path: '/'+instanceId+'/instanceKnowledge?method='+method,
@@ -229,7 +264,7 @@ export default function createInstance(cfg) {
         };
 
         if (status !== STATUS.running) {
-          return Promise.reject('Can\'t update the instance, it is not running.');
+          return Promise.reject(new errors.CraftAiError('Can\'t update the instance, it is not running.'));
         }
         else if (_.isUndefined(delay)) {
           return singleUpdate();
