@@ -1,6 +1,6 @@
 import _ from 'lodash';
-import dotenv from 'dotenv';
 import { expect } from 'chai';
+import dotenv from 'dotenv';
 
 dotenv.config({silent: true});
 dotenv.load();
@@ -18,6 +18,6 @@ if (typeof window !== 'undefined') {
   global = window;
 }
 
-global.CRAFT_CFG = CRAFT_CFG;
 global._ = _;
+global.CRAFT_CFG = CRAFT_CFG;
 global.expect = expect;
