@@ -163,7 +163,7 @@ instance.update()
 #### Continuous regular decision ####
 
 ````js
-instance.update(<decision_delta_time>)
+instance.update(<decision_delta_time_in_ms>)
 ````
 
 ### 5. Access Knowledge ###
