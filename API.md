@@ -5,12 +5,7 @@
 
 ## Setup ##
 
-To setup your project, follow these following steps, you'll end up with
-`craftai`, refer to the [API reference](#API), below to learn how to use it.
-
-### Browser ###
-
-#### Using [Browserify](http://browserify.org) or [Webpack](http://webpack.github.io) ####
+Follow the following steps to install `craftai` in your JavaScript project. The [API reference](#API) below will give you directions on how to use it.
 
 ```sh
 npm install craft-ai --save
@@ -26,21 +21,7 @@ or using es2015 syntax
 import craftai from 'craft-ai';
 ```
 
-### Node.js ###
-
-```sh
-npm install craft-ai --save
-```
-
-```js
-var craftai = require('craft-ai');
-```
-
-or using es2015 syntax
-
-```js
-import craftai from 'craft-ai';
-```
+These instructions are compliant with a browser project (be it packaged with [Browserify](http://browserify.org) or [Webpack](http://webpack.github.io)) as well as with a Node.js project.
 
 ## API ##
 
