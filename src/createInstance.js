@@ -1,15 +1,17 @@
 import _ from 'lodash';
 import * as errors from './errors';
+import Debug from 'debug';
 import DEFAULTS from './defaults';
 import fetch from 'isomorphic-fetch';
+import IN_BROWSER from './constants';
 import onExit from './onExit';
 import STATUS from './status';
 import WebSocket from 'ws';
 
-const IN_BROWSER = typeof window !== 'undefined';
-
 const START_SUFFIX = '#s';
 const CANCEL_SUFFIX = '#c'; // START_SUFFIX.length === CANCEL_SUFFIX.length
+
+let debug = Debug('craft-ai:client');
 
 export default function createInstance(cfg) {
   cfg = _.defaults(cfg, DEFAULTS);
@@ -148,6 +150,8 @@ export default function createInstance(cfg) {
     status = STATUS.running;
     instanceId = json.instance.instance_id;
 
+    debug(`Instance '${instanceId}' created from ${cfg.owner}/${cfg.name}/${cfg.version}`);
+
     let instance = {
       id: instanceId,
       cfg: cfg,
@@ -166,6 +170,7 @@ export default function createInstance(cfg) {
           path: '/'+ instanceId
         })
         .then(() => {
+          debug(`Instance '${instanceId}' destroyed`);
           cleanupDestroyOnExit();
           status = STATUS.destroyed;
         })
@@ -208,6 +213,7 @@ export default function createInstance(cfg) {
           })
         })
         .then((json) => {
+          debug(`Agent #${json.agent.id} created using behavior ${behavior}`);
           return json.agent;
         });
       },
@@ -289,6 +295,7 @@ export default function createInstance(cfg) {
           oReq.setRequestHeader('X-Craft-Ai-App-Secret', appSecret);
           instance.status = STATUS.destroyed;
           oReq.send();
+          debug(`Instance '${instanceId}' destroyed`);
         }
         else {
           instance.destroy();
