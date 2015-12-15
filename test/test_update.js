@@ -55,7 +55,12 @@ describe('instance.update()', function() {
     return instance.update()
       .catch(err => {
         expect(err).to.be.an.instanceof(errors.CraftAiError);
-        expect(err).to.be.an.instanceof(errors.CraftAiInternalError); // This shouldn't be an internal error.
+        if (IN_BROWSER) {
+          expect(err).to.be.an.instanceof(errors.CraftAiNetworkError);
+        }
+        else {
+          expect(err).to.be.an.instanceof(errors.CraftAiInternalError); // This shouldn't be an internal error.
+        }
       });
   });
 });
