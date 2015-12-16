@@ -1,6 +1,9 @@
 import _ from 'lodash';
 import * as errors from './errors';
+import Debug from 'debug';
 import fetch from 'isomorphic-fetch';
+
+let debug = Debug('craft-ai:client');
 
 export default function request(req, cfg) {
   req = _.defaults(req || {}, {
@@ -22,12 +25,29 @@ export default function request(req, cfg) {
     .catch(err => Promise.reject(new errors.CraftAiNetworkError({
       more: err.message
     })))
-    .then(res => res.json()
-      .catch(err => Promise.reject(new errors.CraftAiInternalError(
-        'Internal Error, the craft ai server responded an invalid json document.', {
-          request: req
+    .then(res => res.text()
+      .catch(err => {
+        debug(`Invalid response from ${req.method} ${req.path}`, err);
+        return Promise.reject(new errors.CraftAiInternalError(
+          'Internal Error, the craft ai server responded an invalid response, see err.more for details.', {
+            request: req,
+            more: err.message
+          }
+        ));
+      })
+      .then(body => {
+        try {
+          return JSON.parse(body);
         }
-      )))
+        catch (err) {
+          debug(`Invalid json response from ${req.method} ${req.path}: ${body}`, err);
+          return Promise.reject(new errors.CraftAiInternalError(
+            'Internal Error, the craft ai server responded an invalid json document.', {
+              request: req
+            }
+          ));
+        }
+      })
       .then(parsedBody => {
         switch (res.status) {
           case 200:
