@@ -198,3 +198,10 @@ instance.destroy()
   // Catch errors here
 })
 ````
+
+### Logging ###
+
+The **craft ai** client is using
+[visionmedia/debug](https://www.npmjs.com/package/debug) under the namespace
+`'craft-ai:client:*'`, please refer to their documentation for further
+information.

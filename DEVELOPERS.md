@@ -11,7 +11,11 @@ https://workbench.craft.ai/workbench/craft-ai/craft-ai-client-js/master/craft_pr
 CRAFT_APP_ID=<retrieved_appId>
 CRAFT_APP_SECRET=<retrieved_appSecret>
 ````
-4. run `npm install` and `npm run tests`
+4. Run `npm install` to install dependencies
+5. You can run the following `npm` scripts:
+  - `npm run test_node` launches the tests in a nodejs context
+  - `npm run dev_browser` launches an auto-reload test server in a browser
+  context at <http://localhost:8080/webpack-dev-server/>
 
 ## Releasing a new version (needs administrator rights) ##
 

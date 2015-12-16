@@ -1,5 +1,6 @@
-import inherits from 'inherits';
 import _ from 'lodash';
+import IN_BROWSER from './constants';
+import inherits from 'inherits';
 
 function CraftAiError(message, extraProperties) {
   if (typeof Error.captureStackTrace === 'function') {
@@ -45,7 +46,7 @@ let CraftAiUnknownError = createCustomError(
 
 let CraftAiNetworkError = createCustomError(
   'CraftAiNetworkError',
-  'Network issue, see err.more for details'
+  IN_BROWSER ? 'Query issue, see err.more fand your browsers log for details' : 'Network issue, see err.more for details'
 );
 
 let CraftAiCredentialsError = createCustomError(

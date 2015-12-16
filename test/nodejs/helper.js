@@ -1,9 +1,9 @@
 import _ from 'lodash';
 import { expect } from 'chai';
+import Debug from 'debug';
 import dotenv from 'dotenv';
 
-dotenv.config({silent: true});
-dotenv.load();
+dotenv.load({silent: true});
 
 const CRAFT_CFG = {
   owner: 'craft-ai',
@@ -13,11 +13,10 @@ const CRAFT_CFG = {
   appSecret: process.env.CRAFT_APP_SECRET
 }
 
-// Exposing stuff that are usefull in the tests
-if (typeof window !== 'undefined') {
-  global = window;
-}
+Debug.enable(process.env.DEBUG);
 
 global._ = _;
 global.CRAFT_CFG = CRAFT_CFG;
+global.debug = Debug('craft-ai:client:test');
 global.expect = expect;
+global.IN_BROWSER = false;

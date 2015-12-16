@@ -1,15 +1,17 @@
 import _ from 'lodash';
 import * as errors from './errors';
+import Debug from 'debug';
 import DEFAULTS from './defaults';
-import fetch from 'isomorphic-fetch';
+import IN_BROWSER from './constants';
 import onExit from './onExit';
+import request from './request';
 import STATUS from './status';
 import WebSocket from 'ws';
 
-const IN_BROWSER = typeof window !== 'undefined';
-
 const START_SUFFIX = '#s';
 const CANCEL_SUFFIX = '#c'; // START_SUFFIX.length === CANCEL_SUFFIX.length
+
+let debug = Debug('craft-ai:client');
 
 export default function createInstance(cfg) {
   cfg = _.defaults(cfg, DEFAULTS);
@@ -25,65 +27,10 @@ export default function createInstance(cfg) {
 
   const appId = cfg.appId;
   const appSecret = cfg.appSecret;
-  const httpUrl = cfg.httpApiUrl + '/' + cfg.owner + '/' + cfg.name + '/' + cfg.version;
   const wsUrl = cfg.wsApiUrl + '/' + cfg.owner + '/' + cfg.name + '/' + cfg.version;
 
   let instanceId;
   let status = STATUS.starting;
-
-  let request = (r) => {
-    r = _.defaults(r || {}, {
-      method: 'GET',
-      path: '',
-      body: {},
-      headers: {}
-    });
-
-    r.url = httpUrl + r.path;
-    r.headers['X-Craft-Ai-App-Id'] = appId;
-    r.headers['X-Craft-Ai-App-Secret'] = appSecret;
-    r.headers['Content-Type'] = 'application/json; charset=utf-8';
-    r.headers['accept'] = '';
-
-    return fetch(r.url, r)
-    .catch(err => Promise.reject(new errors.CraftAiNetworkError({
-      more: err.message
-    })))
-    .then(res => res.json()
-      .catch(err => Promise.reject(new errors.CraftAiInternalError(
-        'Internal Error, the craft ai server responded an invalid json document.', {
-          request: r
-        }
-      )))
-      .then(res_content => {
-        switch (res.status) {
-          case 200:
-            return res_content;
-          case 401:
-          case 403:
-            return Promise.reject(new errors.CraftAiCredentialsError({
-              more: res_content.message,
-              request: r
-            }));
-          case 404:
-            return Promise.reject(new errors.CraftAiBadRequestError({
-              more: res_content.message,
-              request: r
-            }));
-          case 500:
-            return Promise.reject(new errors.CraftAiInternalError(res_content.message, {
-              request: r
-            }));
-          default:
-            return Promise.reject(new errors.CraftAiUnknownError({
-              more: res_content.message,
-              request: r,
-              status: res.status
-            }));
-        }
-      })
-    );
-  };
 
   let actions = {};
 
@@ -101,9 +48,8 @@ export default function createInstance(cfg) {
             data.agentId,
             () => request({
               method: 'POST',
-              path: '/' + instanceId + '/actions/' + data.requestId + '/cancelation',
-              body: JSON.stringify()
-            })
+              path: '/' + instanceId + '/actions/' + data.requestId + '/cancelation'
+            }, cfg)
           );
         }
         else if (_.endsWith(data.call, START_SUFFIX)) {
@@ -114,13 +60,13 @@ export default function createInstance(cfg) {
             (output) => request({
               method: 'POST',
               path: '/' + instanceId + '/actions/' + data.requestId + '/success',
-              body: JSON.stringify(output)
-            }),
+              body: output
+            }, cfg),
             (output) => request({
               method: 'POST',
               path: '/' + instanceId + '/actions/' + data.requestId + '/failure',
-              body: JSON.stringify(output)
-            })
+              body: output
+            }, cfg)
           );
         }
       }
@@ -142,11 +88,13 @@ export default function createInstance(cfg) {
 
   return request({
     method: 'PUT'
-  })
+  }, cfg)
   .then(json => {
 
     status = STATUS.running;
     instanceId = json.instance.instance_id;
+
+    debug(`Instance '${instanceId}' created from ${cfg.owner}/${cfg.name}/${cfg.version}`);
 
     let instance = {
       id: instanceId,
@@ -164,8 +112,9 @@ export default function createInstance(cfg) {
         return request({
           method: 'DELETE',
           path: '/'+ instanceId
-        })
+        }, cfg)
         .then(() => {
+          debug(`Instance '${instanceId}' destroyed`);
           cleanupDestroyOnExit();
           status = STATUS.destroyed;
         })
@@ -181,12 +130,12 @@ export default function createInstance(cfg) {
         return request({
           method: 'PUT',
           path: '/' + instanceId + '/actions',
-          body: JSON.stringify({
+          body: {
             name: name,
             start: name + START_SUFFIX,
             cancel: name + CANCEL_SUFFIX
-          })
-        })
+          }
+        }, cfg)
         .then(() => {
           actions[name] = {
             start: start,
@@ -202,12 +151,13 @@ export default function createInstance(cfg) {
         return request({
           method: 'PUT',
           path: '/'+instanceId+'/agents',
-          body: JSON.stringify({
+          body: {
             behavior: behavior,
             knowledge: knowledge
-          })
-        })
+          }
+        }, cfg)
         .then((json) => {
+          debug(`Agent #${json.agent.id} created using behavior ${behavior}`);
           return json.agent;
         });
       },
@@ -219,10 +169,8 @@ export default function createInstance(cfg) {
         return request({
           method: 'GET',
           path: '/'+instanceId+'/agents/'+agentId+'/knowledge'
-        })
-        .then((json)=>{
-          return json.knowledge;
-        });
+        }, cfg)
+        .then(json => json.knowledge);
       },
       updateAgentKnowledge: function(agentId, knowledge={}, method='set') {
         if (_.isUndefined(agentId)) {
@@ -231,25 +179,23 @@ export default function createInstance(cfg) {
 
         return request({
           method: 'POST',
-          path: '/'+instanceId+'/agents/'+agentId+'/knowledge?method='+method,
-          body: JSON.stringify(knowledge)
-        });
+          path: '/' + instanceId + '/agents/' + agentId + '/knowledge?method=' + method,
+          body: knowledge
+        }, cfg);
       },
       getInstanceKnowledge: function() {
         return request({
           method: 'GET',
-          path: '/'+instanceId+'/instanceKnowledge'
-        })
-        .then((json)=>{
-          return json.knowledge;
-        });
+          path: '/' + instanceId + '/instanceKnowledge'
+        }, cfg)
+        .then(json => json.knowledge);
       },
       updateInstanceKnowledge: function(knowledge={}, method='set') {
         return request({
           method: 'POST',
-          path: '/'+instanceId+'/instanceKnowledge?method='+method,
-          body: JSON.stringify(knowledge)
-        })
+          path: '/' + instanceId + '/instanceKnowledge?method=' + method,
+          body: knowledge
+        }, cfg)
         .then((json)=>{
           return json;
         });
@@ -258,9 +204,11 @@ export default function createInstance(cfg) {
         let singleUpdate = () => {
           return request({
             method: 'POST',
-            path: '/'+instanceId+'/update',
-            body: '{"ts":' + new Date().getTime() + '}'
-          });
+            path: '/' + instanceId + '/update',
+            body: {
+              ts: new Date().getTime()
+            }
+          }, cfg);
         };
 
         if (status !== STATUS.running) {
@@ -282,13 +230,14 @@ export default function createInstance(cfg) {
         if (IN_BROWSER) {
           // Using directly a XMLHttpRequest to make a synchronous call.
           let oReq = new XMLHttpRequest();
-          oReq.open('DELETE', httpUrl + '/' + instance.id, false);
+          oReq.open('DELETE', cfg.httpApiUrl + '/' + cfg.owner + '/' + cfg.name + '/' + cfg.version +  '/' + instance.id, false);
           oReq.setRequestHeader('content-type', 'application/json; charset=utf-8');
           oReq.setRequestHeader('accept', '');
           oReq.setRequestHeader('X-Craft-Ai-App-Id', appId);
           oReq.setRequestHeader('X-Craft-Ai-App-Secret', appSecret);
           instance.status = STATUS.destroyed;
           oReq.send();
+          debug(`Instance '${instanceId}' destroyed`);
         }
         else {
           instance.destroy();
