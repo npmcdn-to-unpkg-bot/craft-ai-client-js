@@ -13,7 +13,7 @@ const CANCEL_SUFFIX = '#c'; // START_SUFFIX.length === CANCEL_SUFFIX.length
 
 let debug = Debug('craft-ai:client');
 
-export default function createInstance(cfg) {
+export default function createInstance(cfg, knowledge) {
   cfg = _.defaults(cfg, DEFAULTS);
   if (!_.has(cfg, 'owner') || !_.isString(cfg.owner)) {
     return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to create an instance with no or invalid project owner provided.'));
@@ -87,7 +87,10 @@ export default function createInstance(cfg) {
   let cleanupDestroyOnExit = () => undefined;
 
   return request({
-    method: 'PUT'
+    method: 'PUT',
+    body: {
+      knowledge: knowledge
+    }
   }, cfg)
   .then(json => {
 
