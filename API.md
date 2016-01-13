@@ -35,7 +35,8 @@ craftai({
   appId: '<app_id>',
   appSecret: '<app_secret>',
   destroyOnExit: true/false
-})
+},
+<init_knowledge>)
 .then(function(instance) {
   // Use your instance here
   // instance = {

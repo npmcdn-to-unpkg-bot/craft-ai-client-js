@@ -18,6 +18,27 @@ describe('craftai(<config>)', function() {
           });
       })
   });
+  it('should create an instance with an initial knowledge', function() {
+    const INITIAL_KNOWLEDGE = {
+      foo: 'fluctuat nec mergitur',
+      bar: [true, 34.3, 'alea jacta est'],
+      baz: 42
+    };
+    this.timeout(5000);
+    return craftai(CRAFT_CFG, INITIAL_KNOWLEDGE)
+      .then(instance => {
+        expect(instance.id).to.be.ok;
+        expect(instance.getStatus()).to.be.equal(STATUS.running);
+        return instance.getInstanceKnowledge()
+          .then(k => {
+            expect(k).to.be.deep.equal(INITIAL_KNOWLEDGE);
+            return instance.destroy()
+              .then(() => {
+                expect(instance.getStatus()).to.be.equal(STATUS.destroyed);
+              });
+          });
+      })
+  });
   it('should fail when using invalid APP_ID/APP_SECRET', function() {
     return craftai(_.extend(_.clone(CRAFT_CFG), {
         appId: 'baaaah',
