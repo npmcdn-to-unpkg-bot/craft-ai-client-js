@@ -12,7 +12,7 @@ npm install craft-ai --save
 ```
 
 ```js
-var craftai = require('craft-ai');
+var craftai = require('craft-ai').createInstance;
 ```
 
 or using es2015 syntax
