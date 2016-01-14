@@ -56,12 +56,7 @@ describe('craftai(<config>)', function() {
       }))
       .catch(err => {
         expect(err).to.be.an.instanceof(errors.CraftAiError);
-        if (IN_BROWSER) {
-          expect(err).to.be.an.instanceof(errors.CraftAiNetworkError);
-        }
-        else {
-          expect(err).to.be.an.instanceof(errors.CraftAiCredentialsError);
-        }
+        expect(err).to.be.an.instanceof(errors.CraftAiCredentialsError);
       });
   });
   it('should fail when using a missing project owner', function() {
