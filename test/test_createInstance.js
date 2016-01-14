@@ -18,6 +18,16 @@ describe('craftai(<config>)', function() {
           });
       })
   });
+  it('should be able to create a \'dangling\' instance that will eventually get destroyed thanks to `destroyOnExit` parameter.', function() {
+    this.timeout(5000);
+    return craftai(_.extend(_.clone(CRAFT_CFG), {
+      destroyOnExit: true
+    }))
+      .then(instance => {
+        expect(instance.id).to.be.ok;
+        debug(`Instance '${instance.id}', when the test exits, should have the status 'STOPPED' at 'https://workbench.craft.ai/instances/${instance.owner}/${instance.name}'.`);
+      });
+  });
   it('should create an instance with an initial knowledge', function() {
     const INITIAL_KNOWLEDGE = {
       foo: 'fluctuat nec mergitur',

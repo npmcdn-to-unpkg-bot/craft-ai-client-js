@@ -2,7 +2,6 @@ import _ from 'lodash';
 import * as errors from './errors';
 import Debug from 'debug';
 import DEFAULTS from './defaults';
-import IN_BROWSER from './constants';
 import onExit from './onExit';
 import request from './request';
 import STATUS from './status';
@@ -126,6 +125,17 @@ export default function createInstance(cfg, knowledge) {
           return Promise.reject(err);
         });
       },
+      destroySync: function() {
+        status = STATUS.stopping;
+        request({
+          method: 'DELETE',
+          path: '/'+ instanceId,
+          asynchronous: false
+        }, cfg);
+        debug(`Instance '${instanceId}' destroyed`);
+        cleanupDestroyOnExit();
+        status = STATUS.destroyed;
+      },
       registerAction: function(name, start, cancel = () => undefined) {
         if (_.isUndefined(ws)) {
           initWs();
@@ -230,21 +240,8 @@ export default function createInstance(cfg, knowledge) {
 
     if (cfg.destroyOnExit) {
       cleanupDestroyOnExit = onExit(() => {
-        if (IN_BROWSER) {
-          // Using directly a XMLHttpRequest to make a synchronous call.
-          let oReq = new XMLHttpRequest();
-          oReq.open('DELETE', cfg.httpApiUrl + '/' + cfg.owner + '/' + cfg.name + '/' + cfg.version +  '/' + instance.id, false);
-          oReq.setRequestHeader('content-type', 'application/json; charset=utf-8');
-          oReq.setRequestHeader('accept', '');
-          oReq.setRequestHeader('X-Craft-Ai-App-Id', appId);
-          oReq.setRequestHeader('X-Craft-Ai-App-Secret', appSecret);
-          instance.status = STATUS.destroyed;
-          oReq.send();
-          debug(`Instance '${instanceId}' destroyed`);
-        }
-        else {
-          instance.destroy();
-        }
+        debug(`Destroying instance '${instanceId}' before exiting...`);
+        instance.destroySync();
       });
     }
 

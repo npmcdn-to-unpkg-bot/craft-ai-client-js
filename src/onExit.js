@@ -11,6 +11,7 @@ function onWindowCloses(cb) {
 }
 
 const NODE_PROCESS_EVENT = [
+  'exit',
   'unhandledRejection',
   'uncaughtException',
   'SIGINT',
