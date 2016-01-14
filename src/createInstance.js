@@ -233,7 +233,8 @@ export default function createInstance(cfg, knowledge) {
         if (IN_BROWSER) {
           // Using directly a XMLHttpRequest to make a synchronous call.
           let oReq = new XMLHttpRequest();
-          oReq.open('DELETE', cfg.httpApiUrl + '/' + cfg.owner + '/' + cfg.name + '/' + cfg.version +  '/' + instance.id, false);
+          let params = 'delete_logs=' + cfg.deleteLogsOnDestroy;
+          oReq.open('DELETE', cfg.httpApiUrl + '/' + cfg.owner + '/' + cfg.name + '/' + cfg.version +  '/' + instance.id + '?' + params, false);
           oReq.setRequestHeader('content-type', 'application/json; charset=utf-8');
           oReq.setRequestHeader('accept', '');
           oReq.setRequestHeader('X-Craft-Ai-App-Id', appId);

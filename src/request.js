@@ -13,7 +13,8 @@ export default function request(req, cfg) {
     headers: {}
   });
 
-  req.url = cfg.httpApiUrl + '/' + cfg.owner + '/' + cfg.name + '/' + cfg.version + req.path;
+  let params = 'delete_logs=' + cfg.deleteLogsOnDestroy;
+  req.url = cfg.httpApiUrl + '/' + cfg.owner + '/' + cfg.name + '/' + cfg.version + req.path + '?' + params;
   req.headers['X-Craft-Ai-App-Id'] = cfg.appId;
   req.headers['X-Craft-Ai-App-Secret'] = cfg.appSecret;
   req.headers['Content-Type'] = 'application/json; charset=utf-8';
