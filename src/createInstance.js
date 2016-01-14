@@ -34,6 +34,7 @@ export default function createInstance(cfg, knowledge) {
   let actions = {};
 
   let ws;
+  let sse;
 
   let initWs = () => {
     ws = new WebSocket(wsUrl + '/' + instanceId + '/websockets');
@@ -98,6 +99,41 @@ export default function createInstance(cfg, knowledge) {
 
     debug(`Instance '${instanceId}' created from ${cfg.owner}/${cfg.name}/${cfg.version}`);
 
+    sse = new EventSource(cfg.httpApiUrl + '/' + cfg.owner + '/' + cfg.name + '/' + cfg.version + '/sse');
+    sse.onmessage = function(e) {
+      const data = JSON.parse(evt.data);
+      const actionName = data.call.substring(0, data.call.length - START_SUFFIX.length);
+      if (_.endsWith(data.call, CANCEL_SUFFIX)) {
+        actions[actionName].cancel(
+          data.requestId,
+          data.agentId,
+          () => request({
+            method: 'POST',
+            path: '/' + instanceId + '/actions/' + data.requestId + '/cancelation'
+          }, cfg)
+        );
+      }
+      else if (_.endsWith(data.call, START_SUFFIX)) {
+        actions[actionName].start(
+          data.requestId,
+          data.agentId,
+          data.input,
+          (output) => request({
+            method: 'POST',
+            path: '/' + instanceId + '/actions/' + data.requestId + '/success',
+            body: output
+          }, cfg),
+          (output) => request({
+            method: 'POST',
+            path: '/' + instanceId + '/actions/' + data.requestId + '/failure',
+            body: output
+          }, cfg)
+        );      
+    }
+    sse.onerror = function() {
+      status = STATUS.destroyed; // Should cleanly call destroy instead
+    };
+
     let instance = {
       id: instanceId,
       cfg: cfg,
@@ -118,6 +154,7 @@ export default function createInstance(cfg, knowledge) {
         .then(() => {
           debug(`Instance '${instanceId}' destroyed`);
           cleanupDestroyOnExit();
+          sse.close();
           status = STATUS.destroyed;
         })
         .catch(err => {
@@ -134,6 +171,7 @@ export default function createInstance(cfg, knowledge) {
         }, cfg);
         debug(`Instance '${instanceId}' destroyed`);
         cleanupDestroyOnExit();
+        sse.close();
         status = STATUS.destroyed;
       },
       registerAction: function(name, start, cancel = () => undefined) {
@@ -146,7 +184,8 @@ export default function createInstance(cfg, knowledge) {
           body: {
             name: name,
             start: name + START_SUFFIX,
-            cancel: name + CANCEL_SUFFIX
+            cancel: name + CANCEL_SUFFIX,
+            protocol: 'SSE'
           }
         }, cfg)
         .then(() => {
