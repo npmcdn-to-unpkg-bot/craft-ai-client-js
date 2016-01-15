@@ -101,7 +101,7 @@ export default function createInstance(cfg, knowledge) {
 
     sse = new EventSource(cfg.httpApiUrl + '/' + cfg.owner + '/' + cfg.name + '/' + cfg.version + '/sse');
     sse.onmessage = function(e) {
-      const data = JSON.parse(evt.data);
+      const data = JSON.parse(e.data);
       const actionName = data.call.substring(0, data.call.length - START_SUFFIX.length);
       if (_.endsWith(data.call, CANCEL_SUFFIX)) {
         actions[actionName].cancel(
@@ -128,8 +128,9 @@ export default function createInstance(cfg, knowledge) {
             path: '/' + instanceId + '/actions/' + data.requestId + '/failure',
             body: output
           }, cfg)
-        );      
-    }
+        );
+      }      
+    };
     sse.onerror = function() {
       status = STATUS.destroyed; // Should cleanly call destroy instead
     };
