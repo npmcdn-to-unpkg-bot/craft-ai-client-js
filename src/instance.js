@@ -78,11 +78,11 @@ export default function instance(cfg, status) {
     };
     ws.onclose = function() {
       debug(`Instance '${instance.id}' websocket closed.`);
-      instance.initWs();
+      initWs();
     };
     ws.onerror = function() {
       debug(`Instance '${instance.id}' websocket errored.`);
-      instance.initWs();
+      initWs();
     };
   };
 

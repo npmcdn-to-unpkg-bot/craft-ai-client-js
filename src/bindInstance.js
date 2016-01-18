@@ -34,5 +34,5 @@ export default function bindInstance(cfg, knowledge = undefined) {
     .then(json => {
       debug(`Instance '${cfg.id}' from ${cfg.owner}/${cfg.name}/${cfg.version} bound`);
       return instance(cfg, STATUS.running);
-    })
+    });
 }

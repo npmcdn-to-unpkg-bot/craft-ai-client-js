@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import IN_BROWSER from './constants';
 import inherits from 'inherits';
 
 function CraftAiError(message, extraProperties) {
