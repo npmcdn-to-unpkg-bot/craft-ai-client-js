@@ -46,7 +46,7 @@ let CraftAiUnknownError = createCustomError(
 
 let CraftAiNetworkError = createCustomError(
   'CraftAiNetworkError',
-  IN_BROWSER ? 'Query issue, see err.more fand your browsers log for details' : 'Network issue, see err.more for details'
+  'Network issue, see err.more for details'
 );
 
 let CraftAiCredentialsError = createCustomError(
