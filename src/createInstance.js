@@ -112,9 +112,10 @@ export default function createInstance(cfg, knowledge) {
       },
       destroy: function() {
         status = STATUS.stopping;
+        let params = 'delete_logs=' + cfg.deleteLogsOnDestroy;
         return request({
           method: 'DELETE',
-          path: '/'+ instanceId
+          path: '/'+ instanceId + '?' + params
         }, cfg)
         .then(() => {
           debug(`Instance '${instanceId}' destroyed`);
