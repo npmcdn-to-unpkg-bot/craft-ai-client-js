@@ -36,7 +36,7 @@ describe('bindInstance(<config>)', function() {
       });
   });
   it('should fail to bind an instance when a bad identifier is provided', function() {
-    this.timeout(60000); // This should not be necessary.
+    this.timeout(90000); // This should not be necessary.
     return bindInstance(_.extend(_.clone(CRAFT_CFG), {
       id: 'kiki_koko'
       }))
