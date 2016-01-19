@@ -65,8 +65,8 @@ export default function instance(cfg, status) {
             data.requestId,
             data.agentId,
             data.input,
-            () => actionSuccess(instance, data.requestId),
-            () => actionFailure(instance, data.requestId)
+            output => actionSuccess(instance, data.requestId, output),
+            output => actionFailure(instance, data.requestId, output)
           );
         }
       }
