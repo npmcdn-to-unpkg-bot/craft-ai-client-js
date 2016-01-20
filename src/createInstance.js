@@ -100,7 +100,7 @@ export default function createInstance(cfg, knowledge) {
     debug(`Instance '${instanceId}' created from ${cfg.owner}/${cfg.name}/${cfg.version}`);
 
     sse = new EventSource(cfg.httpApiUrl + '/' + cfg.owner + '/' + cfg.name + '/' + cfg.version + '/' + instanceId +'/actions/sse' + '?x-craft-ai-app-id=' + appId + '&x-craft-ai-app-secret=' + appSecret, {withCredentials: true});
-    sse.onmessage = function(e) {
+    sse.addEventListener('message', function(e) {
       const data = JSON.parse(e.data);
       const actionName = data.call.substring(0, data.call.length - START_SUFFIX.length);
       if (_.endsWith(data.call, CANCEL_SUFFIX)) {
@@ -130,8 +130,9 @@ export default function createInstance(cfg, knowledge) {
           }, cfg)
         );
       }      
-    };
-    sse.onerror = function() {
+    });
+    sse.onerror = function(err) {
+      debug(`SSE Error on Instance '${instanceId}'`,err);
       status = STATUS.destroyed; // Should cleanly call destroy instead
     };
 
