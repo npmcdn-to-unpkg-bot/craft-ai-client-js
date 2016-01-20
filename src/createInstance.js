@@ -99,7 +99,7 @@ export default function createInstance(cfg, knowledge) {
 
     debug(`Instance '${instanceId}' created from ${cfg.owner}/${cfg.name}/${cfg.version}`);
 
-    sse = new EventSource(cfg.httpApiUrl + '/' + cfg.owner + '/' + cfg.name + '/' + cfg.version + '/' + instanceId +'/actions/sse');
+    sse = new EventSource(cfg.httpApiUrl + '/' + cfg.owner + '/' + cfg.name + '/' + cfg.version + '/' + instanceId +'/actions/sse' + '?x-craft-ai-app-id=' + appId + '&x-craft-ai-app-secret=' + appSecret, {withCredentials: true});
     sse.onmessage = function(e) {
       const data = JSON.parse(e.data);
       const actionName = data.call.substring(0, data.call.length - START_SUFFIX.length);
