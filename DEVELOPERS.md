@@ -13,9 +13,10 @@ CRAFT_APP_SECRET=<retrieved_appSecret>
 ````
 4. Run `npm install` to install dependencies
 5. You can run the following `npm` scripts:
-  - `npm run test_node` launches the tests in a nodejs context
+  - `npm run test_node` launches the tests in a nodejs context,
   - `npm run dev_browser` launches an auto-reload test server in a browser
-  context at <http://localhost:8080/webpack-dev-server/>
+  context at <http://localhost:8080/webpack-dev-server/>,
+  - `npm run lint` checks the coding style.
 
 ## Releasing a new version (needs administrator rights) ##
 

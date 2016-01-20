@@ -30,7 +30,7 @@
     "test": "npm run test_node",
     "test_node": "mocha",
     "dev_browser": "cd test/browser && webpack-dev-server",
-    "prepublish": "npm run lint && npm run test && npm run build"
+    "prepublish": "npm run build"
   },
   "devDependencies": {
     "babel-cli": "6.3.17",
