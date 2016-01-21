@@ -5,7 +5,7 @@ const DEFAULTS = {
   httpApiUrl: process.env.CRAFT_HTTP_API_URL || 'https://api.craft.ai/v1',
   wsApiUrl: process.env.CRAFT_WS_API_URL || 'wss://api.craft.ai/v1',
   hubApiUrl: process.env.CRAFT_HUB_API_URL || 'https://hub.craft.ai/v1',
-  deleteLogsOnDestroy: false
+  cleanupOnDestroy: false
 };
 
 export default DEFAULTS;
