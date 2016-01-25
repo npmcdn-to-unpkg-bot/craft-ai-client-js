@@ -176,7 +176,7 @@ export default function instance(cfg, status) {
           name: name,
           start: name + START_SUFFIX,
           cancel: name + CANCEL_SUFFIX,
-          protocol: 'sse'
+          protocol: 'SSE'
         }
       }, this)
       .then(() => {
