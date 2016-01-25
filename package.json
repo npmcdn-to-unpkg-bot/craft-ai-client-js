@@ -1,6 +1,6 @@
 {
   "name": "craft-ai",
-  "version": "0.0.5",
+  "version": "0.0.7",
   "description": "craft ai API isomorphic (compatible with browser and nodejs) javascript client",
   "author": {
     "name": "craft ai",
@@ -13,6 +13,9 @@
     "url": "https://github.com/craft-ai/craft-ai-client-js/issues"
   },
   "main": "lib/index.js",
+  "browser": {
+    "ws": false
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/craft-ai/craft-ai-client-js"
@@ -24,10 +27,10 @@
   "scripts": {
     "build": "babel src --out-dir lib",
     "lint": "eslint -c ./.eslintrc src/**",
-    "test": "npm run test_node",
+    "test": "npm run test_node && npm run lint",
     "test_node": "mocha",
     "dev_browser": "cd test/browser && webpack-dev-server",
-    "prepublish": "npm run lint && npm run test && npm run build"
+    "prepublish": "npm run build"
   },
   "devDependencies": {
     "babel-cli": "6.3.17",
@@ -48,6 +51,6 @@
     "isomorphic-fetch": "2.2.0",
     "lodash": "3.10.1",
     "sync-request": "3.0.0",
-    "ws": "0.8.1"
+    "ws": "1.0.1"
   }
 }
