@@ -86,7 +86,8 @@ export default function instance(cfg, status) {
       initWs(instance);
     };
   };
-  sse = new EventSource(cfg.httpApiUrl + '/' + cfg.owner + '/' + cfg.name + '/' + cfg.version + '/' + instanceId +'/actions/sse' + '?x-craft-ai-app-id=' + appId + '&x-craft-ai-app-secret=' + appSecret, {withCredentials: true});
+
+  sse = new EventSource(cfg.httpApiUrl + '/' + cfg.owner + '/' + cfg.name + '/' + cfg.version + '/' + cfg.id +'/actions/sse' + '?x-craft-ai-app-id=' + cfg.appId + '&x-craft-ai-app-secret=' + cfg.appSecret, {withCredentials: true});
   sse.addEventListener('message', function(e) {
     const data = JSON.parse(e.data);
     const actionName = data.call.substring(0, data.call.length - START_SUFFIX.length);
@@ -96,7 +97,7 @@ export default function instance(cfg, status) {
         data.agentId,
         () => request({
           method: 'POST',
-          path: '/' + instanceId + '/actions/' + data.requestId + '/cancelation'
+          path: '/' + cfg.id + '/actions/' + data.requestId + '/cancelation'
         }, cfg)
       );
     }
@@ -107,19 +108,19 @@ export default function instance(cfg, status) {
         data.input,
         (output) => request({
           method: 'POST',
-          path: '/' + instanceId + '/actions/' + data.requestId + '/success',
+          path: '/' + cfg.id + '/actions/' + data.requestId + '/success',
           body: output
         }, cfg),
         (output) => request({
           method: 'POST',
-          path: '/' + instanceId + '/actions/' + data.requestId + '/failure',
+          path: '/' + cfg.id + '/actions/' + data.requestId + '/failure',
           body: output
         }, cfg)
       );
     }      
   });
   sse.onerror = function(err) {
-    debug(`SSE Error on Instance '${instanceId}'`,err);
+    debug(`SSE Error on Instance '${cfg.id}'`,err);
     status = STATUS.destroyed; // Should cleanly call destroy instead
   };
 
