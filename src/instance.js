@@ -163,7 +163,7 @@ export default function instance(cfg, status) {
       }, this)
       .then(() => {
         let router = Router();
-        router.post(`/${name}/start`, bodyParser.json(), (req, res) => {
+        router.post(`/${this.id}/${name}/start`, bodyParser.json(), (req, res) => {
           const p = _.defaults(req.body, {
             input: {},
             requestId: null,
@@ -182,7 +182,7 @@ export default function instance(cfg, status) {
           });
         });
 
-        router.post(`/${name}/cancel`, bodyParser.json(), (req, res) => {
+        router.post(`/${this.id}/${name}/cancel`, bodyParser.json(), (req, res) => {
           const p = _.defaults(req.body, {
             requestId: null
           });
