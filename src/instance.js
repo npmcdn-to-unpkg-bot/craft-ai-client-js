@@ -158,7 +158,7 @@ export default function instance(cfg, status) {
         path: '/' + this.id + '/actions',
         body: {
           name: name,
-          url: rootUrl + '/' + name
+          url: rootUrl + '/' + name + '/'
         }
       }, this)
       .then(() => {
