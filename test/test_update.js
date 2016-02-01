@@ -4,12 +4,16 @@ describe('instance.update()', function() {
   this.timeout(5000);
   let instance;
   let agentId;
+  const initialAgentKnowledge = {
+    foo: "bar",
+    baz: 3
+  }
   beforeEach(function() {
     return craftai(CRAFT_CFG)
       .then(newInstance => {
         expect(newInstance.id).to.be.ok;
         instance = newInstance;
-        return instance.createAgent('test/bts/test.bt')
+        return instance.createAgent('test/bts/test.bt', initialAgentKnowledge);
       })
       .then(agent => {
         expect(agent).to.be.ok;
@@ -29,10 +33,13 @@ describe('instance.update()', function() {
   });
   it('should call "Test" action start callback', function() {
     let testStartCbCallCount = 0;
+    const expectedActionInput = {
+      p1: "bar"
+    }
     let testStartCb = (r, a, i, sCb, fCb) => {
       expect(r).to.be.at.least(0);
       expect(a).to.be.equal(agentId);
-      expect(i).to.be.deep.equal({});
+      expect(i).to.be.deep.equal(expectedActionInput);
       expect(sCb).to.be.a('function');
       expect(fCb).to.be.a('function');
 
@@ -55,12 +62,7 @@ describe('instance.update()', function() {
     return instance.update()
       .catch(err => {
         expect(err).to.be.an.instanceof(errors.CraftAiError);
-        if (IN_BROWSER) {
-          expect(err).to.be.an.instanceof(errors.CraftAiNetworkError);
-        }
-        else {
-          expect(err).to.be.an.instanceof(errors.CraftAiInternalError); // This shouldn't be an internal error.
-        }
+        expect(err).to.be.an.instanceof(errors.CraftAiInternalError); // This shouldn't be an internal error.
       });
   });
 });

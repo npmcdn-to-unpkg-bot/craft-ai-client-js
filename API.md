@@ -12,7 +12,7 @@ npm install craft-ai --save
 ```
 
 ```js
-var craftai = require('craft-ai');
+var craftai = require('craft-ai').createInstance;
 ```
 
 or using es2015 syntax
@@ -204,6 +204,16 @@ instance.destroy()
 .catch(function(error) {
   // Catch errors here
 })
+````
+
+#### Synchronous destruction ####
+
+In some cases, it is desirable to destroy an instance synchronously (it is used
+internally to [destroy the instance on exit](#destroyonexit)), there is an API
+for that!
+
+````js
+instance.destroySync();
 ````
 
 ### Logging ###

@@ -56,12 +56,7 @@ describe('instance.getAgentKnowledge(<agent_id>)', function() {
     return instance.getAgentKnowledge(INVALID_AGENT_ID)
       .catch(err => {
         expect(err).to.be.an.instanceof(errors.CraftAiError);
-        if (IN_BROWSER) {
-          expect(err).to.be.an.instanceof(errors.CraftAiNetworkError);
-        }
-        else {
-          expect(err).to.be.an.instanceof(errors.CraftAiBadRequestError);
-        }
+        expect(err).to.be.an.instanceof(errors.CraftAiBadRequestError);
       });
   });
   it('should fail for undefined agents', function() {

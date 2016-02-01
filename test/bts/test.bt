@@ -16,7 +16,13 @@
         },
         "properties": {
           "name": "Test",
-          "inputParams": [],
+          "inputParams": [
+            {
+              "key": "p1",
+              "type": "entityKnowledge",
+              "value": "foo"
+            }
+          ],
           "outputParams": []
         },
         "children": [],

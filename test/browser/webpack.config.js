@@ -9,8 +9,11 @@ dotenv.load({
 module.exports = {
     entry: '!mocha!./test.js',
     output: {
-        path: __dirname,
-        filename: 'bundle.js'
+      path: __dirname,
+      filename: 'bundle.js'
+    },
+    externals: {
+      "ws": false
     },
     plugins: [
       new webpack.DefinePlugin({
