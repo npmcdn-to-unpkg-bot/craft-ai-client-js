@@ -174,8 +174,8 @@ export default function instance(cfg, status) {
             p.requestId,
             p.agentId,
             p.input,
-            () => actionSuccess(this, p.requestId),
-            () => actionFailure(this, p.requestId)
+            output => actionSuccess(this, p.requestId, output),
+            output => actionFailure(this, p.requestId, output)
           );
           res.send({
             message: msg
