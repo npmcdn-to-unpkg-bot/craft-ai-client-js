@@ -35,6 +35,7 @@ craftai({
   appId: '<app_id>',
   appSecret: '<app_secret>',
   destroyOnExit: true/false
+  cleanupOnDestroy: false/true
 },
 <init_knowledge>)
 .then(function(instance) {
@@ -63,6 +64,11 @@ event.
 [_uncaughtException_](https://nodejs.org/api/process.html#process_event_uncaughtexception),
 [_unhandledrejection_](https://nodejs.org/api/process.html#process_event_unhandledrejection),
 [_SIGINT_, _SIGTERM_, _SIGQUIT_ and _SIGHUP_](https://nodejs.org/api/process.html#process_signal_events) events.
+
+#### `cleanupOnDestroy` ####
+
+If `true`, instance information will also be cleaned up when the instance is destroyed.
+
 
 ### 2. Register actions ###
 

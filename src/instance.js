@@ -100,9 +100,10 @@ export default function instance(cfg, status) {
     },
     destroy: function() {
       this.status = STATUS.stopping;
+      let params = 'cleanup=' + this.cfg.cleanupOnDestroy;
       return request({
         method: 'DELETE',
-        path: '/'+ this.id
+        path: '/'+ this.id + '?' + params
       }, this)
       .then(() => {
         debug(`Instance '${this.id}' destroyed`);
@@ -116,9 +117,10 @@ export default function instance(cfg, status) {
     },
     destroySync: function() {
       this.status = STATUS.stopping;
+      let params = 'cleanup=' + this.cfg.cleanupOnDestroy;
       request({
         method: 'DELETE',
-        path: '/'+ this.id,
+        path: '/'+ this.id + '?' + params,
         asynchronous: false
       }, this);
       debug(`Instance '${this.id}' destroyed`);
