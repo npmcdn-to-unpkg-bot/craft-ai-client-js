@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import EventSource from 'eventsource';
 import * as errors from './errors';
 import Debug from 'debug';
 import DEFAULTS from './defaults';
@@ -6,6 +7,7 @@ import onExit from './onExit';
 import request from './request';
 import STATUS from './status';
 import WebSocket from './ws';
+
 
 const START_SUFFIX = '#s';
 const CANCEL_SUFFIX = '#c'; // START_SUFFIX.length === CANCEL_SUFFIX.length
