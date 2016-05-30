@@ -34,6 +34,7 @@ function parseResponse(req, resStatus, resBody) {
 
   switch (resStatus) {
     case 200:
+    case 201:
       return resBodyJson;
     case 401:
     case 403:
@@ -41,6 +42,7 @@ function parseResponse(req, resStatus, resBody) {
         more: resBodyJson.message,
         request: req
       });
+    case 400:
     case 404:
       throw new errors.CraftAiBadRequestError({
         more: resBodyJson.message,
@@ -65,12 +67,15 @@ export default function request(req, cfg) {
     path: '',
     body: undefined,
     asynchronous: true,
+    queries: {},
     headers: {}
   });
 
-  req.url = cfg.httpApiUrl + '/' + cfg.owner + '/' + cfg.name + '/' + cfg.version + req.path;
-  req.headers['X-Craft-Ai-App-Id'] = cfg.appId;
-  req.headers['X-Craft-Ai-App-Secret'] = cfg.appSecret;
+  req.url = cfg.url + '/api/' + cfg.owner + req.path;
+  if (req.queries.length > 0) {
+    req.url = req.url + '?' + _.map(_.toPairs(req.queries), p => p.join('=')).join('&');
+  }
+  req.headers['Authorization'] = 'Bearer ' + cfg.token;
   req.headers['Content-Type'] = 'application/json; charset=utf-8';
   req.headers['Accept'] = 'application/json';
 

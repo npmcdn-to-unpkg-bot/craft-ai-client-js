@@ -9,11 +9,8 @@ if (!_.isUndefined(__DEBUG__)) {
 }
 
 const CRAFT_CFG = {
-  owner: 'craft-ai',
-  name: 'craft-ai-client-js',
-  version: 'master',
-  appId: __CRAFT_APP_ID__,
-  appSecret: __CRAFT_APP_SECRET__
+  owner: __CRAFT_OWNER__,
+  token: __CRAFT_TOKEN__
 }
 
 window._ = _;

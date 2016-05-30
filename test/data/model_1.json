@@ -1,0 +1,17 @@
+{
+  "context": {
+    "presence": {
+      "type": "enum"
+    },
+    "lightIntensity": {
+      "type": "continuous"
+    },
+    "lightbulbColor": {
+      "type": "enum"
+    }
+  },
+  "output": [
+    "lightbulbColor"
+  ],
+  "time_quantum": 100
+}
