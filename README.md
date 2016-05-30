@@ -42,7 +42,8 @@ These instructions are compliant with a browser project (be it packaged with [Br
 ````js
 let client = craftai({
   owner: '<owner>',
-  token: '<token>'
+  token: '<token>',
+  operationsChunksSize: <max_number_of_operations_sent_at_once> // Optional, default value is 500
 })
 ````
 

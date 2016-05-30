@@ -51,7 +51,7 @@ describe('client.createAgent(<model>, [id], [destroyOnExit])', function() {
       })
   });
   it('should succeed when using a valid model, specified id and destroyOnExit', function() {
-    const agentId = 'suicidal_on_exit_2';
+    const agentId = 'suicidal_on_exit';
     return client.destroyAgent(agentId) // Destroy any preexisting agent with this id.
       .then(() => client.createAgent(MODEL_1, 'suicidal_on_exit_2', true))
       .then(agent => {

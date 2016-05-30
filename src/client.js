@@ -118,13 +118,19 @@ export default function createClient(cfg) {
         return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to add agent context operations with no or invalid operations provided.'));
       }
 
-      return request({
-        method: 'POST',
-        path: '/agents/' + agentId + '/context',
-        body: operations
-      }, this)
-      .then(response => {
-        debug(response.message);
+      return _(operations)
+      .chunk(cfg.operationsChunksSize)
+      .reduce((p, chunk) => p.then(
+        () => request({
+          method: 'POST',
+          path: '/agents/' + agentId + '/context',
+          body: chunk
+        }, this)
+        ),
+        new Promise(resolve => resolve())
+      )
+      .then(() => {
+        debug(`Successfully added ${operations.length} operations to the agent ${cfg.owner}/${agentId} context.`);
       });
     },
     getAgentContextOperations: function(agentId) {
