@@ -1,66 +1,76 @@
-import craftai, { errors, STATUS } from '../src';
+import craftai, { errors } from '../src';
 
-describe('instance.createAgent(<bt_name>, <initial_knowledge_content>)', function() {
-  this.timeout(5000);
-  let instance;
+import MODEL_1 from './data/model_1.json';
+import INVALID_MODEL_1 from './data/invalid_model_1.json';
+
+describe('client.createAgent(<model>, [id], [destroyOnExit])', function() {
+  let client;
   before(function() {
-    return craftai(CRAFT_CFG)
-      .then(newInstance => {
-        expect(newInstance.id).to.be.ok;
-        instance = newInstance;
-      })
+    client = craftai(CRAFT_CFG);
+    expect(client).to.be.ok;
   });
-  after(function() {
-    if (instance) {
-      return instance.destroy()
-        .then(() => {
-          expect(instance.getStatus()).to.equal(STATUS.destroyed);
-          instance = undefined;
-        })
-    }
-  });
-  it('should succeed when using a valid behavior', function() {
-    return instance.createAgent('test/bts/test.bt')
+  it('should succeed when using a valid model and generated id', function() {
+    return client.createAgent(MODEL_1)
       .then(agent => {
         expect(agent).to.be.ok;
-        expect(agent.id).to.be.at.least(0);
+        expect(agent.id).to.be.a.string;
+        return client.destroyAgent(agent.id);
+      });
+  });
+  it('should succeed when using a valid model and specified id', function() {
+    const agentId = 'unspeakable_dermatologist';
+    return client.destroyAgent(agentId) // Destroy any preexisting agent with this id.
+      .then(() => client.createAgent(MODEL_1, id))
+      .then(agent => {
+        expect(agent).to.be.ok;
+        expect(agent.id).to.be.equal(id);
+        return client.destroyAgent(agent.id);
+      })
+      .catch(err => {
+        client.destroyAgent(agentId) // The test might fail due to duplicate id, let's make sure it doesn't fail twice.
+          .then(() => {
+            throw err
+          });
+      });
+  });
+  it('should fail when trying to use the same id twice', function() {
+    const agentId = 'aphasic_parrot';
+    return client.destroyAgent(agentId) // Destroy any preexisting agent with this id.
+      .then(() => client.createAgent(MODEL_1, agentId))
+      .then(agent => {
+        expect(agent).to.be.ok;
+        expect(agent.id).to.be.equal(agentId);
+        return client.createAgent(MODEL_1, agentId);
+      })
+      .catch(err => {
+        expect(err).to.be.an.instanceof(errors.CraftAiError);
+        expect(err).to.be.an.instanceof(errors.CraftAiBadRequestError);
+      })
+      .then(() => {
+        return client.destroyAgent(agentId);
       })
   });
-  it('should fail when using an undefined behavior', function() {
-    return instance.createAgent()
+  it('should succeed when using a valid model, specified id and destroyOnExit', function() {
+    const agentId = 'suicidal_on_exit_2';
+    return client.destroyAgent(agentId) // Destroy any preexisting agent with this id.
+      .then(() => client.createAgent(MODEL_1, 'suicidal_on_exit_2', true))
+      .then(agent => {
+        expect(agent).to.be.ok;
+        expect(agent.id).to.be.a.string;
+      });
+  });
+  it('should fail when using an undefined model', function() {
+    return client.createAgent(undefined)
       .catch(err => {
         expect(err).to.be.an.instanceof(errors.CraftAiError);
         expect(err).to.be.an.instanceof(errors.CraftAiBadRequestError);
       });
   });
-  it('should fail when using a non-existing behavior', function() {
-    return instance.createAgent('test/bts/bloup.bt')
+  it('should fail when using an invalid model', function() {
+    return client.createAgent(INVALID_MODEL_1)
       .catch(err => {
         expect(err).to.be.an.instanceof(errors.CraftAiError);
-        expect(err).to.be.an.instanceof(errors.CraftAiInternalError); // This shouldn't be an internal error.
-      });
-  });
-  it('should fail when using an invalid behavior', function() {
-    return instance.createAgent('test/bts/invalid_behavior.bt')
-      .catch(err => {
-        expect(err).to.be.an.instanceof(errors.CraftAiError);
-        expect(err).to.be.an.instanceof(errors.CraftAiInternalError); // This shouldn't be an internal error.
-      });
-  });
-  it('should succeed when using a valid behavior and initial knowledge', function() {
-    const INITIAL_KNOWLEDGE = {
-      foo: 'fluctuat nec mergitur',
-      bar: [true, 34.3, 'alea jacta est'],
-      baz: 42
-    };
-    return instance.createAgent('test/bts/test.bt', INITIAL_KNOWLEDGE)
-      .then(agent => {
-        expect(agent).to.be.ok;
-        expect(agent.id).to.be.at.least(0);
-        return instance.getAgentKnowledge(agent.id)
-          .then(k => {
-            expect(k).to.be.deep.equal(INITIAL_KNOWLEDGE);
-          });
+        expect(err).to.be.an.instanceof(errors.CraftAiBadRequestError);
       });
   });
 });

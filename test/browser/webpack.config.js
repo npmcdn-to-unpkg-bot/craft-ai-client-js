@@ -12,13 +12,10 @@ module.exports = {
       path: __dirname,
       filename: 'bundle.js'
     },
-    externals: {
-      "ws": false
-    },
     plugins: [
       new webpack.DefinePlugin({
-        __CRAFT_APP_ID__: JSON.stringify(process.env.CRAFT_APP_ID),
-        __CRAFT_APP_SECRET__: JSON.stringify(process.env.CRAFT_APP_SECRET),
+        __CRAFT_TOKEN__: JSON.stringify(process.env.CRAFT_TOKEN),
+        __CRAFT_OWNER__: JSON.stringify(process.env.CRAFT_OWNER),
         __DEBUG__: JSON.stringify(process.env.DEBUG)
       })
     ],
@@ -31,6 +28,10 @@ module.exports = {
           options: {
             cacheDirectory: true
           }
+        },
+        {
+          test: /\.json$/,
+          loaders: ['json-loader']
         }
       ]
     }

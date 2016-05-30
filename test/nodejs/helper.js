@@ -6,11 +6,8 @@ import dotenv from 'dotenv';
 dotenv.load({silent: true});
 
 const CRAFT_CFG = {
-  owner: 'craft-ai',
-  name: 'craft-ai-client-js',
-  version: 'master',
-  appId: process.env.CRAFT_APP_ID,
-  appSecret: process.env.CRAFT_APP_SECRET
+  owner: process.env.CRAFT_OWNER,
+  token: process.env.CRAFT_TOKEN
 }
 
 Debug.enable(process.env.DEBUG);
