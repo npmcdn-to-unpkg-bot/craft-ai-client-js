@@ -101,7 +101,7 @@ export default function createClient(cfg) {
       return request({
         method: 'GET',
         path: '/agents/' + agentId + '/context/state',
-        queries: {
+        query: {
           t: posixTimestamp
         }
       }, this);
@@ -151,13 +151,12 @@ export default function createClient(cfg) {
 
       return request({
         method: 'POST',
-        path: '/' + this.id + '/instanceKnowledge',
-        queries: {
+        path: '/agents/' + agentId + '/decision',
+        query: {
           t: posixTimestamp
         },
         body: context
-      }, this)
-      .then(json => json.knowledge);
+      }, this);
     }
   });
 

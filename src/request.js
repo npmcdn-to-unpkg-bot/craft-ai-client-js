@@ -73,13 +73,13 @@ export default function request(req, cfg) {
     path: '',
     body: undefined,
     asynchronous: true,
-    queries: {},
+    query: {},
     headers: {}
   });
 
   req.url = cfg.url + '/api/' + cfg.owner + req.path;
-  if (req.queries.length > 0) {
-    req.url = req.url + '?' + _.map(_.toPairs(req.queries), p => p.join('=')).join('&');
+  if (_.size(req.query) > 0) {
+    req.url = req.url + '?' + _.map(_.keys(req.query), key => `${key}=${req.query[key]}`).join('&');
   }
   req.headers['Authorization'] = 'Bearer ' + cfg.token;
   req.headers['Content-Type'] = 'application/json; charset=utf-8';
