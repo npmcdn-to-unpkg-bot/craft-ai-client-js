@@ -21,7 +21,12 @@ function parseResponse(req, resStatus, resBody) {
   }
   let resBodyJson;
   try {
-    resBodyJson = JSON.parse(resBodyUtf8);
+    if (resBodyUtf8.length > 0) {
+      resBodyJson = JSON.parse(resBodyUtf8);
+    }
+    else {
+      resBodyJson = {};
+    }
   }
   catch (err) {
     debug(`Invalid json response from ${req.method} ${req.path}: ${resBody}`, err);
@@ -35,6 +40,7 @@ function parseResponse(req, resStatus, resBody) {
   switch (resStatus) {
     case 200:
     case 201:
+    case 204:
       return resBodyJson;
     case 401:
     case 403:

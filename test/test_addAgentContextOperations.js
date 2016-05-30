@@ -13,26 +13,21 @@ const MODEL_1_OPERATIONS_1_LAST = _.reduce(
 describe('client.addAgentContextOperations(<agentId>, <operations>)', function() {
   let client;
   let agent;
+  const agentId = 'add_agent_context_operations_agent';
   before(function() {
     client = craftai(CRAFT_CFG);
     expect(client).to.be.ok;
   });
   beforeEach(function() {
-    const agentId = 'add_agent_context_operations_agent';
-    return client.createAgent(MODEL_1, agentId)
+    return client.destroyAgent(agentId) // Destroy any preexisting agent with this id.
+      .then(() => client.createAgent(MODEL_1, agentId))
       .then(createdAgent => {
         expect(createdAgent).to.be.ok;
         agent = createdAgent;
-      })
-      .catch(err => {
-        client.destroyAgent(agentId)
-          .then(() => {
-            throw err
-          });
       });
   });
   afterEach(function() {
-    return client.destroyAgent(agent.id);
+    return client.destroyAgent(agentId);
   });
   it('should succeed when using valid operations', function() {
     return client.addAgentContextOperations(agent.id, MODEL_1_OPERATIONS_1)

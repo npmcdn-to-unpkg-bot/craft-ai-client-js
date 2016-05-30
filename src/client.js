@@ -85,7 +85,7 @@ export default function createClient(cfg) {
         path: '/agents/' + agentId
       }, this)
       .then(agent => {
-        debug(`Agent '${agent.id}' destroyed`);
+        debug(`Agent '${agentId}' destroyed`);
         return agent;
       });
     },
