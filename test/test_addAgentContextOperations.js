@@ -64,6 +64,7 @@ describe('client.addAgentContextOperations(<agentId>, <operations>)', function()
       });
   });
   it('should succeed with a very large payload', function() {
+    this.timeout(10000);
     return client.addAgentContextOperations(agent.id, MODEL_1_OPERATIONS_2);
   });
 });
