@@ -6,7 +6,7 @@ import syncRequest from 'sync-request';
 
 let debug = Debug('craft-ai:client');
 
-function parseResponse(req, resStatus, resBody) {
+function parseBody(req, resBody) {
   let resBodyUtf8;
   try {
     resBodyUtf8 = resBody.toString('utf-8');
@@ -36,31 +36,39 @@ function parseResponse(req, resStatus, resBody) {
       }
     );
   }
+  return resBodyJson;
+}
 
+function parseResponse(req, resStatus, resBody) {
   switch (resStatus) {
     case 200:
     case 201:
     case 204:
-      return resBodyJson;
+      return parseBody(req, resBody);
     case 401:
     case 403:
       throw new errors.CraftAiCredentialsError({
-        message: resBodyJson.message,
+        message: parseBody(req, resBody).message,
         request: req
       });
     case 400:
     case 404:
       throw new errors.CraftAiBadRequestError({
-        message: resBodyJson.message,
+        message: parseBody(req, resBody).message,
+        request: req
+      });
+    case 413:
+      throw new errors.CraftAiBadRequestError({
+        message: 'Given payload is too large',
         request: req
       });
     case 500:
-      throw new errors.CraftAiInternalError(resBodyJson.message, {
+      throw new errors.CraftAiInternalError(parseBody(req, resBody).message, {
         request: req
       });
     default:
       throw new errors.CraftAiUnknownError({
-        more: resBodyJson.message,
+        more: parseBody(req, resBody).message,
         request: req,
         status: resStatus
       });
