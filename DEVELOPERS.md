@@ -2,17 +2,14 @@
 
 ## Running the tests locally ##
 
-1. Add _craft-ai/craft-ai-client-js_ (or your fork of it) to your **craft ai**
-projects from the [workbench](https://workbench.craft.ai)
-2. Retrieve your _appId/appSecret_ for this project from the [workbench](
-https://workbench.craft.ai/workbench/craft-ai/craft-ai-client-js/master/craft_project.json)
-3. On your dev machine, at the root of your clone, create a file named `.env` with the following content
+1. Retrieve your **craft ai** _owner_ and _token_.
+2. On your dev machine, at the root of your clone, create a file named `.env` with the following content
 ````
-CRAFT_APP_ID=<retrieved_appId>
-CRAFT_APP_SECRET=<retrieved_appSecret>
+CRAFT_OWNER=<retrieved_owner>
+CRAFT_TOKEN=<retrieved_token>
 ````
-4. Run `npm install` to install dependencies
-5. You can run the following `npm` scripts:
+3. Run `npm install` to install dependencies
+4. You can run the following `npm` scripts:
   - `npm run test_node` launches the tests in a nodejs context,
   - `npm run dev_browser` launches an auto-reload test server in a browser
   context at <http://localhost:8080/webpack-dev-server/>,
