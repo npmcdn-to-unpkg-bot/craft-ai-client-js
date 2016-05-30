@@ -10,6 +10,8 @@ const MODEL_1_OPERATIONS_1_LAST = _.reduce(
   (context, operation) => _.extend(context, operation),
   {});
 
+import MODEL_1_OPERATIONS_2 from './data/model_1_operations_2.json';
+
 describe('client.addAgentContextOperations(<agentId>, <operations>)', function() {
   let client;
   let agent;
@@ -60,5 +62,8 @@ describe('client.addAgentContextOperations(<agentId>, <operations>)', function()
       .then(retrievedOperations => {
         expect(retrievedOperations).to.be.deep.equal(MODEL_1_OPERATIONS_1);
       });
+  });
+  it('should succeed with a very large payload', function() {
+    return client.addAgentContextOperations(agent.id, MODEL_1_OPERATIONS_2);
   });
 });
