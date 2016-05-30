@@ -1,5 +1,6 @@
 require('./helper');
 
+require('../test_addAgentContextOperations');
 require('../test_createAgent');
 require('../test_errors');
 

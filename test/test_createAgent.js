@@ -43,7 +43,7 @@ describe('client.createAgent(<model>, [id], [destroyOnExit])', function() {
       })
   });
   it('should succeed when using a valid model, specified id and destroyOnExit', function() {
-    return client.createAgent(MODEL_1, 'suicidal_on_exit', true)
+    return client.createAgent(MODEL_1, 'suicidal_on_exit_2', true)
       .then(agent => {
         expect(agent).to.be.ok;
         expect(agent.id).to.be.a.string;

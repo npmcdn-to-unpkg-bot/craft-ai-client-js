@@ -39,13 +39,13 @@ function parseResponse(req, resStatus, resBody) {
     case 401:
     case 403:
       throw new errors.CraftAiCredentialsError({
-        more: resBodyJson.message,
+        message: resBodyJson.message,
         request: req
       });
     case 400:
     case 404:
       throw new errors.CraftAiBadRequestError({
-        more: resBodyJson.message,
+        message: resBodyJson.message,
         request: req
       });
     case 500:

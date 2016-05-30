@@ -7,6 +7,21 @@ import request from './request';
 
 let debug = Debug('craft-ai:client');
 
+function getPosixTimestamp(ts) {
+  if (_.isUndefined(ts)) {
+    return Math.floor(Date.now() / 1000);
+  }
+  else if (_.isNumber(ts)) {
+    return Math.floor(ts);
+  }
+  else if (_.isDate()) {
+    return Math.floor(ts.UTC() / 1000);
+  }
+  else {
+    return undefined;
+  }
+}
+
 export default function createClient(cfg) {
   cfg = _.defaults(_.clone(cfg), DEFAULTS);
 
@@ -74,36 +89,61 @@ export default function createClient(cfg) {
         return agent;
       });
     },
+    getAgentContext: function(agentId, timestamp = undefined) {
+      if (_.isUndefined(agentId)) {
+        return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to get the agent context with no agentId provided.'));
+      }
+      let posixTimestamp = getPosixTimestamp(timestamp);
+      if (_.isUndefined(posixTimestamp)) {
+        return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to get the agent context with no or invalid timestamp provided, supported formats are Numbers and Dates.'));
+      }
+
+      return request({
+        method: 'GET',
+        path: '/agents/' + agentId + '/context/state',
+        queries: {
+          t: posixTimestamp
+        }
+      }, this);
+    },
     addAgentContextOperations: function(agentId, operations) {
       if (_.isUndefined(agentId)) {
-        return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to add operations to agent context with no agentId provided.'));
+        return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to add agent context operations with no agentId provided.'));
       }
-      if (_.isUndefined(operations) || !_.isArray(operations)) {
-        return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to compute an agent decision with no or invalid operations provided.'));
+      if (!_.isArray(operations)) {
+        // Only one given operation
+        operations = [operations];
+      }
+      if (_.isUndefined(operations) || !_.isArray(operations) ) {
+        return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to add agent context operations with no or invalid operations provided.'));
       }
 
       return request({
         method: 'POST',
         path: '/agents/' + agentId + '/context',
         body: operations
+      }, this)
+      .then(response => {
+        debug(response.message);
+      });
+    },
+    getAgentContextOperations: function(agentId) {
+      if (_.isUndefined(agentId)) {
+        return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to get agent context operations with no agentId provided.'));
+      }
+
+      return request({
+        method: 'GET',
+        path: '/agents/' + agentId + '/context'
       }, this);
     },
     computeAgentDecision: function(agentId, timestamp, context) {
       if (_.isUndefined(agentId)) {
         return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to compute an agent decision with no agentId provided.'));
       }
-      if (_.isUndefined(timestamp)) {
-        return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to compute an agent decision with no timestamp provided.'));
-      }
-      let posixTimestamp;
-      if (_.isInteger(timestamp)) {
-        posixTimestamp = timestamp;
-      }
-      else if (_.isDate()) {
-        posixTimestamp = Math.floor(timestamp.UTC() / 1000);
-      }
-      else {
-        return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to compute an agent decision with an invalid timestamp provided, supported formats are Integers and Dates.'));
+      let posixTimestamp = getPosixTimestamp(timestamp);
+      if (_.isUndefined(posixTimestamp)) {
+        return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to compute an agent decision with no or invalid timestamp provided, supported formats are Numbers and Dates.'));
       }
       if (_.isUndefined(context) || !_.isObject(context)) {
         return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to compute an agent decision with no or invalid context provided.'));
