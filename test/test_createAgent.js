@@ -20,16 +20,16 @@ describe('client.createAgent(<model>, [id], [destroyOnExit])', function() {
   it('should succeed when using a valid model and specified id', function() {
     const agentId = 'unspeakable_dermatologist';
     return client.destroyAgent(agentId) // Destroy any preexisting agent with this id.
-      .then(() => client.createAgent(MODEL_1, id))
+      .then(() => client.createAgent(MODEL_1, agentId))
       .then(agent => {
         expect(agent).to.be.ok;
-        expect(agent.id).to.be.equal(id);
+        expect(agent.id).to.be.equal(agentId);
         return client.destroyAgent(agent.id);
       })
       .catch(err => {
         client.destroyAgent(agentId) // The test might fail due to duplicate id, let's make sure it doesn't fail twice.
           .then(() => {
-            throw err
+            throw err;
           });
       });
   });
@@ -48,7 +48,7 @@ describe('client.createAgent(<model>, [id], [destroyOnExit])', function() {
       })
       .then(() => {
         return client.destroyAgent(agentId);
-      })
+      });
   });
   it('should succeed when using a valid model, specified id and destroyOnExit', function() {
     const agentId = 'suicidal_on_exit';

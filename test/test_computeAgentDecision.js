@@ -1,4 +1,4 @@
-import craftai, { errors } from '../src';
+import craftai from '../src';
 
 import MODEL_1 from './data/model_1.json';
 import MODEL_1_OPERATIONS_1 from './data/model_1_operations_1.json';
@@ -27,9 +27,9 @@ describe('client.computeAgentDecision(<model>, <timestamp>, <context>)', functio
   });
   it('should succeed when using valid parameters', function() {
     return client.computeAgentDecision(agent.id, MODEL_1_OPERATIONS_1_TO + 200, {
-        presence: 'none',
-        lightIntensity: 0.1
-      })
+      presence: 'none',
+      lightIntensity: 0.1
+    })
       .then(context => {
         expect(context).to.be.ok;
         expect(context.decision.lightbulbColor).to.be.equal('black');
