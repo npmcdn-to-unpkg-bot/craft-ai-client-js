@@ -11,7 +11,7 @@ if (!_.isUndefined(__DEBUG__)) {
 const CRAFT_CFG = {
   owner: __CRAFT_OWNER__,
   token: __CRAFT_TOKEN__
-}
+};
 
 window._ = _;
 window.CRAFT_CFG = CRAFT_CFG;

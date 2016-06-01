@@ -3,12 +3,12 @@ import { expect } from 'chai';
 import Debug from 'debug';
 import dotenv from 'dotenv';
 
-dotenv.load({silent: true});
+dotenv.load({ silent: true });
 
 const CRAFT_CFG = {
   owner: process.env.CRAFT_OWNER,
   token: process.env.CRAFT_TOKEN
-}
+};
 
 Debug.enable(process.env.DEBUG);
 

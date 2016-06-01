@@ -1,0 +1,7 @@
+{
+  "globals": {
+    "__CRAFT_TOKEN__": true,
+    "__CRAFT_OWNER__": true,
+    "__DEBUG__": true
+  }
+}

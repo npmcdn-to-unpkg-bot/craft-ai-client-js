@@ -1,0 +1,12 @@
+{
+  "env": {
+    "mocha": true
+  },
+  "globals": {
+    "_": true,
+    "CRAFT_CFG": true,
+    "debug": true,
+    "expect": true,
+    "IN_BROWSER": true
+  }
+}

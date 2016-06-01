@@ -43,7 +43,8 @@ These instructions are compliant with a browser project (be it packaged with [Br
 let client = craftai({
   owner: '<owner>',
   token: '<token>',
-  operationsChunksSize: <max_number_of_operations_sent_at_once> // Optional, default value is 500
+  operationsChunksSize: <max_number_of_operations_sent_at_once>, // Optional, default value is 500
+  operationsAdditionWait: <time_in_seconds_waited_before_flushing_operations_cache> // Optional, default value is 60
 })
 ````
 
@@ -116,8 +117,12 @@ client.destroyAgent(
 
 #### Add operations ####
 
+Use this method to add context operations to an agent. By default, it adds the
+given operations to a cache that is flushed at least once every
+`cfg.operationsAdditionWait`.
+
 ````js
-instance.addAgentContextOperations(
+client.addAgentContextOperations(
   'aphasic_parrot', // The agent id
   [ // The list of operations
     {
@@ -134,20 +139,52 @@ instance.addAgentContextOperations(
         presence: 'gisele',
         lightbulbColor: 'purple'
       }
-    }
+    },
+    false // Flush immediately the given operations, default is false
   ])
 .then(function() {
-  // The operations where successfully added
+  // The operations where successfully added to the cache
+  // OR (if specified)
+  // The operations where successfully added to agent context on the server side
 })
 .catch(function(error) {
   // Catch errors here
 })
 ````
 
+##### Error handling #####
+
+When an addition is cached, subsequent method calls related to this agent will
+force a flush before proceeding. For example:
+
+````js
+// Adding a first bunch of context operations
+client.addAgentContextOperations('aphasic_parrot', [ /* ... */ ])
+.then(function() {
+  // Adding a second bunch of context operations
+  client.addAgentContextOperations('aphasic_parrot', [ /* ... */ ])
+})
+.catch(function(error) {
+  // You won't catch anything there
+})
+.then(function() {
+  // The operations where successfully added to the cache, we don't know **yet**
+  // if the additions actually failed or not
+  return client.getAgentContext('aphasic_parrot', 1464600256);
+})
+.then(function(context) {
+  // Work on context
+})
+.catch(function(error) {
+  // Catch errors related to the previous calls to
+  // `client.addAgentContextOperations` as well as `client.getAgentContext`
+})
+````
+
 #### List operations ####
 
 ````js
-instance.getAgentContextOperations(
+client.getAgentContextOperations(
   'aphasic_parrot' // The agent id
 )
 .then(function(operations) {
@@ -161,7 +198,7 @@ instance.getAgentContextOperations(
 #### Retrieve context state ####
 
 ````js
-instance.getAgentContext(
+client.getAgentContext(
   'aphasic_parrot', // The agent id
   1464600256 // The timestamp at which the context state is retrieved
 )
@@ -178,7 +215,7 @@ instance.getAgentContext(
 #### Take decision ####
 
 ````js
-instance.computeAgentDecision(
+client.computeAgentDecision(
   'aphasic_parrot', // The agent id
   1464600256, // The timestamp at which the decision is taken
   { // The context on which the decision is taken

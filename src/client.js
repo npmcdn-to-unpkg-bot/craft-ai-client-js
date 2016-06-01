@@ -51,6 +51,67 @@ export default function createClient(cfg) {
     }
   });
 
+  // The cache of operations to send.
+  let agentsOperations = {};
+
+  // The promise that actually flush the context operations for one agent.
+  let flushAgentContextOperationsPromise = agentId => {
+    // Extract the operations to flush
+    const operationsToFlush = agentsOperations[agentId] || [];
+    agentsOperations[agentId] = [];
+
+    if (operationsToFlush.length === 0) {
+      // Nothing to flush
+      return new Promise(resolve => resolve());
+    }
+    else {
+      // Something to flush, in chunks !
+      return _(operationsToFlush)
+      .chunk(cfg.operationsChunksSize)
+      .reduce((p, chunk) => p.then(
+          () => request({
+            method: 'POST',
+            path: '/agents/' + agentId + '/context',
+            body: chunk
+          }, cfg)
+        ),
+        new Promise(resolve => resolve())
+      )
+      .then(() => {
+        debug(`Successfully added ${operationsToFlush.length} operations to the agent ${cfg.owner}/${agentId} context.`);
+      });
+    }
+  };
+
+  // This is the only flush operation that will occur in this client, ever.
+  let currentFlushOperation = new Promise(resolve => resolve());
+
+  // To execute when an immediate flush is needed.
+  let flushAgentContextOperations = agentId => {
+    currentFlushOperation = currentFlushOperation
+      .then(() => flushAgentContextOperationsPromise(agentId));
+    return currentFlushOperation
+      .catch(err => {
+        // If an error is caught during this immediate flush, we break the
+        // Promise chain to avoid 'contaminating' future flush operations.
+        currentFlushOperation = new Promise(resolve => resolve());
+        return Promise.reject(err);
+      });
+  };
+
+  // To execute when an eventual flush is needed.
+  let throttledFlushAgentContextOperations = _.throttle(
+    agentId => {
+      currentFlushOperation = currentFlushOperation
+        .then(() => flushAgentContextOperationsPromise(agentId));
+      return currentFlushOperation;
+    },
+    cfg.operationsAdditionWait * 1000,
+    {
+      leading: true
+    }
+  );
+
   // 'Public' attributes & methods
   let instance = _.defaults(_.clone(cfg), DEFAULTS, {
     cfg: cfg,
@@ -80,6 +141,8 @@ export default function createClient(cfg) {
         return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to destroy an agent with no agentId provided.'));
       }
 
+      agentsOperations[agentId] = [];
+      
       return request({
         method: 'DELETE',
         path: '/agents/' + agentId
@@ -98,15 +161,16 @@ export default function createClient(cfg) {
         return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to get the agent context with no or invalid timestamp provided, supported formats are Numbers and Dates.'));
       }
 
-      return request({
+      return flushAgentContextOperations(agentId)
+      .then(() => request({
         method: 'GET',
         path: '/agents/' + agentId + '/context/state',
         query: {
           t: posixTimestamp
         }
-      }, this);
+      }, this));
     },
-    addAgentContextOperations: function(agentId, operations) {
+    addAgentContextOperations: function(agentId, operations, flush = false) {
       if (_.isUndefined(agentId)) {
         return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to add agent context operations with no agentId provided.'));
       }
@@ -118,30 +182,25 @@ export default function createClient(cfg) {
         return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to add agent context operations with no or invalid operations provided.'));
       }
 
-      return _(operations)
-      .chunk(cfg.operationsChunksSize)
-      .reduce((p, chunk) => p.then(
-        () => request({
-          method: 'POST',
-          path: '/agents/' + agentId + '/context',
-          body: chunk
-        }, this)
-        ),
-        new Promise(resolve => resolve())
-      )
-      .then(() => {
-        debug(`Successfully added ${operations.length} operations to the agent ${cfg.owner}/${agentId} context.`);
-      });
+      agentsOperations[agentId] = (agentsOperations[agentId] || []).concat(operations);
+      if (flush) {
+        return flushAgentContextOperations(agentId);
+      }
+      else {
+        throttledFlushAgentContextOperations(agentId);
+        return new Promise(resolve => resolve());
+      }
     },
     getAgentContextOperations: function(agentId) {
       if (_.isUndefined(agentId)) {
         return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to get agent context operations with no agentId provided.'));
       }
 
-      return request({
+      return flushAgentContextOperations(agentId)
+      .then(() => request({
         method: 'GET',
         path: '/agents/' + agentId + '/context'
-      }, this);
+      }, this));
     },
     computeAgentDecision: function(agentId, timestamp, context) {
       if (_.isUndefined(agentId)) {
@@ -155,14 +214,15 @@ export default function createClient(cfg) {
         return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to compute an agent decision with no or invalid context provided.'));
       }
 
-      return request({
+      return flushAgentContextOperations(agentId)
+      .then(() => request({
         method: 'POST',
         path: '/agents/' + agentId + '/decision',
         query: {
           t: posixTimestamp
         },
         body: context
-      }, this);
+      }, this));
     }
   });
 
