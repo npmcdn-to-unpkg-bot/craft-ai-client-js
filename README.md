@@ -152,6 +152,35 @@ client.addAgentContextOperations(
 })
 ````
 
+##### Error handling #####
+
+When an addition is cached, subsequent method calls related to this agent will
+force a flush before proceeding. For example:
+
+````js
+// Adding a first bunch of context operations
+client.addAgentContextOperations('aphasic_parrot', [ /* ... */ ])
+.then(function() {
+  // Adding a second bunch of context operations
+  client.addAgentContextOperations('aphasic_parrot', [ /* ... */ ])
+})
+.catch(function(error) {
+  // You won't catch anything there
+})
+.then(function() {
+  // The operations where successfully added to the cache, we don't know **yet**
+  // if the additions actually failed or not
+  return client.getAgentContext('aphasic_parrot', 1464600256);
+})
+.then(function(context) {
+  // Work on context
+})
+.catch(function(error) {
+  // Catch errors related to the previous calls to
+  // `client.addAgentContextOperations` as well as `client.getAgentContext`
+})
+````
+
 #### List operations ####
 
 ````js
