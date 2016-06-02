@@ -3,6 +3,7 @@ import craftai, { errors } from '../src';
 import MODEL_1 from './data/model_1.json';
 import MODEL_1_OPERATIONS_1 from './data/model_1_operations_1.json';
 
+const MODEL_1_OPERATIONS_1_FROM = _.first(MODEL_1_OPERATIONS_1).timestamp;
 const MODEL_1_OPERATIONS_1_TO = _.last(MODEL_1_OPERATIONS_1).timestamp;
 const MODEL_1_OPERATIONS_1_LAST = _.reduce(
   MODEL_1_OPERATIONS_1,
@@ -44,6 +45,11 @@ describe('client.addAgentContextOperations(<agentId>, <operations>)', function()
       })
       .then(retrievedOperations => {
         expect(retrievedOperations).to.be.deep.equal(MODEL_1_OPERATIONS_1);
+        return client.getAgent(agent.id);
+      })
+      .then(retrievedAgent => {
+        expect(retrievedAgent.firstTimestamp).to.be.equal(MODEL_1_OPERATIONS_1_FROM);
+        expect(retrievedAgent.lastTimestamp).to.be.equal(MODEL_1_OPERATIONS_1_TO);
       });
   });
   it('should fail when using out of order operations with immediate flush)', function() {

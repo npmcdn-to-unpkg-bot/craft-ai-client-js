@@ -14,7 +14,11 @@ describe('client.createAgent(<model>, [id], [destroyOnExit])', function() {
       .then(agent => {
         expect(agent).to.be.ok;
         expect(agent.id).to.be.a.string;
-        return client.destroyAgent(agent.id);
+        return client.getAgent(agent.id)
+          .then(retrieveAgent => {
+            expect(retrieveAgent.model).to.be.deep.equal(MODEL_1);
+            return client.destroyAgent(agent.id);
+          });
       });
   });
   it('should succeed when using a valid model and specified id', function() {
