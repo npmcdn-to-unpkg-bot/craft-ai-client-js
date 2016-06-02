@@ -71,7 +71,7 @@ client.createAgent(
     ],
     time_quantum: 100
   },
-  'aphasic_parrot', // id for the agent, if undifined a random id is generated
+  'aphasic_parrot', // id for the agent, if undefined a random id is generated
   true, // `destroyOnExit`, default is false
 )
 .then(function(agent) {
