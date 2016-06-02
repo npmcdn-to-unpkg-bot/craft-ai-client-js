@@ -136,13 +136,24 @@ export default function createClient(cfg) {
         return agent;
       });
     },
+    getAgent: function(agentId) {
+      if (_.isUndefined(agentId)) {
+        return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to get the agent with no agentId provided.'));
+      }
+
+      return flushAgentContextOperations(agentId)
+      .then(() => request({
+        method: 'GET',
+        path: '/agents/' + agentId
+      }, this));
+    },
     destroyAgent: function(agentId) {
       if (_.isUndefined(agentId)) {
         return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to destroy an agent with no agentId provided.'));
       }
 
       agentsOperations[agentId] = [];
-      
+
       return request({
         method: 'DELETE',
         path: '/agents/' + agentId

@@ -5,7 +5,7 @@ import MODEL_1_OPERATIONS_1 from './data/model_1_operations_1.json';
 
 const MODEL_1_OPERATIONS_1_TO = _.last(MODEL_1_OPERATIONS_1).timestamp;
 
-describe('client.computeAgentDecision(<model>, <timestamp>, <context>)', function() {
+describe('client.computeAgentDecision(<agentId>, <timestamp>, <context>)', function() {
   let client;
   let agent;
   const agentId = 'compute_agent_decision_agent';
