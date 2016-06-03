@@ -213,6 +213,16 @@ export default function createClient(cfg) {
         path: '/agents/' + agentId + '/context'
       }, this));
     },
+    getAgentInspectorUrl: function(agentId, timestamp) {
+      if (_.isUndefined(agentId)) {
+        return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to get the public inspector url beause agentId isn\'t provided.'));
+      }
+      if (_.isUndefined(timestamp)) {
+        return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to get the public inspector url beause timestamp isn\'t provided.')); 
+      }
+
+      return Promise.resolve(`${cfg.url}/public/inspector?owner=${cfg.owner}&agent=${agentId}&timestamp=${timestamp}&token=${cfg.token}`);
+    },
     computeAgentDecision: function(agentId, timestamp, context) {
       if (_.isUndefined(agentId)) {
         return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to compute an agent decision with no agentId provided.'));

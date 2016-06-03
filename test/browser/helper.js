@@ -10,7 +10,8 @@ if (!_.isUndefined(__DEBUG__)) {
 
 const CRAFT_CFG = {
   owner: __CRAFT_OWNER__,
-  token: __CRAFT_TOKEN__
+  token: __CRAFT_TOKEN__,
+  url: __CRAFT_URL__
 };
 
 window._ = _;

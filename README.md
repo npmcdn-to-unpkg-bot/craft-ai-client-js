@@ -113,6 +113,21 @@ client.destroyAgent(
 })
 ````
 
+#### `getAgentInspectorUrl` ####
+
+````js
+client.getAgentInspectorUrl(
+  'aphasic_parrot', // The agent id
+  1464600256 // timestamp when to get the tree
+)
+.then(function() {
+  // Get the url to access a tree without being logged
+})
+.catch(function(error) {
+  // Catch errors here
+})
+````
+
 ### Context ###
 
 #### Add operations ####
