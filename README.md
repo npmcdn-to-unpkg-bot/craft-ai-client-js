@@ -117,11 +117,11 @@ client.destroyAgent(
 
 ````js
 client.getAgentInspectorUrl(
-  'aphasic_parrot', // The agent id
-  1464600256 // timestamp when to get the tree
+  'aphasic_parrot', // The agent id.
+  1464600256 // optional, the timestamp for which you want to inspect the tree.
 )
 .then(function(url) {
-  // url to the agent's inspector
+  // Url to the agent's inspector
 })
 .catch(function(error) {
   // Catch errors here
