@@ -2,6 +2,7 @@ require('./helper');
 
 require('../test_addAgentContextOperations');
 require('../test_computeAgentDecision');
+require('../test_getAgentDecisionTree');
 require('../test_createAgent');
 require('../test_errors');
 require('../test_getAgent');

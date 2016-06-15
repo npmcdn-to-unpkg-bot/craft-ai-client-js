@@ -52,6 +52,34 @@ describe('client.addAgentContextOperations(<agentId>, <operations>)', function()
         expect(retrievedAgent.lastTimestamp).to.be.equal(MODEL_1_OPERATIONS_1_TO);
       });
   });
+  it('should succeed when using operations with ISO 8601 timestamps', function() {
+    return client.addAgentContextOperations(agent.id, [
+      {
+        timestamp: '1998-04-23T04:30:00-05:00',
+        diff: {
+          presence: 'robert',
+          lightIntensity: 0.4,
+          lightbulbColor: 'green'
+        }
+      },
+      {
+        timestamp: '1998-04-23T04:32:25-05:00',
+        diff: {
+          presence: 'none'
+        }
+      }
+    ])
+      .then(() => {
+        return client.getAgentContext(agent.id, '1998-04-23T04:33:00-05:00');
+      })
+      .then(context => {
+        expect(context.context).to.be.deep.equal({
+          presence: 'none',
+          lightIntensity: 0.4,
+          lightbulbColor: 'green'
+        });
+      });
+  });
   it('should fail when using out of order operations with immediate flush)', function() {
     return client.addAgentContextOperations(agent.id, MODEL_1_OPERATIONS_1, true)
       .then(() => {

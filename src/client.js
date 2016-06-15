@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { decide, Time } from 'craft-ai-interpreter';
 import * as errors from './errors';
 import Debug from 'debug';
 import DEFAULTS from './defaults';
@@ -6,21 +7,6 @@ import onExit from './onExit';
 import request from './request';
 
 let debug = Debug('craft-ai:client');
-
-function getPosixTimestamp(ts) {
-  if (_.isUndefined(ts)) {
-    return Math.floor(Date.now() / 1000);
-  }
-  else if (_.isNumber(ts)) {
-    return Math.floor(ts);
-  }
-  else if (_.isDate()) {
-    return Math.floor(ts.UTC() / 1000);
-  }
-  else {
-    return undefined;
-  }
-}
 
 export default function createClient(cfg) {
   cfg = _.defaults(_.clone(cfg), DEFAULTS);
@@ -163,13 +149,13 @@ export default function createClient(cfg) {
         return agent;
       });
     },
-    getAgentContext: function(agentId, timestamp = undefined) {
+    getAgentContext: function(agentId, t = undefined) {
       if (_.isUndefined(agentId)) {
         return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to get the agent context with no agentId provided.'));
       }
-      let posixTimestamp = getPosixTimestamp(timestamp);
+      let posixTimestamp = Time(t).timestamp;
       if (_.isUndefined(posixTimestamp)) {
-        return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to get the agent context with no or invalid timestamp provided, supported formats are Numbers and Dates.'));
+        return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to get the agent context with an invalid timestamp provided.'));
       }
 
       return flushAgentContextOperations(agentId)
@@ -193,7 +179,11 @@ export default function createClient(cfg) {
         return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to add agent context operations with no or invalid operations provided.'));
       }
 
-      agentsOperations[agentId] = (agentsOperations[agentId] || []).concat(operations);
+      agentsOperations[agentId] = (agentsOperations[agentId] || []).concat(
+        _.map(operations, o => _.defaults(o, {
+          timestamp: Time(o.timestamp).timestamp
+        }))
+      );
       if (flush) {
         return flushAgentContextOperations(agentId);
       }
@@ -213,38 +203,64 @@ export default function createClient(cfg) {
         path: '/agents/' + agentId + '/context'
       }, this));
     },
-    getAgentInspectorUrl: function(agentId, timestamp = undefined) {
+    getAgentInspectorUrl: function(agentId, t = undefined) {
       if (_.isUndefined(agentId)) {
-        return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to get the public inspector url beause agentId isn\'t provided.'));
+        return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to get the agent public inspector url beause agentId isn\'t provided.'));
       }
-      if (_.isUndefined(timestamp)) {
-        return Promise.resolve(`${cfg.url}/public/inspector?owner=${cfg.owner}&agent=${agentId}&token=${cfg.token}`);
+      if (_.isUndefined(t)) {
+        return Promise.resolve(`${cfg.url}/public/inspector?token=${cfg.token}&owner=${cfg.owner}&agent=${agentId}`);
       }
       else {
-        return Promise.resolve(`${cfg.url}/public/inspector?owner=${cfg.owner}&agent=${agentId}&timestamp=${timestamp}&token=${cfg.token}`);
+        let posixTimestamp = Time(t).timestamp;
+        if (_.isUndefined(posixTimestamp)) {
+          return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to get the agent public inspector url with no or invalid timestamp provided.'));
+        }
+        return Promise.resolve(`${cfg.url}/public/inspector?token=${cfg.token}&owner=${cfg.owner}&agent=${agentId}&timestamp=${posixTimestamp}`);
       }
     },
-    computeAgentDecision: function(agentId, timestamp, context) {
+    getAgentDecisionTree: function(agentId, t = undefined) {
       if (_.isUndefined(agentId)) {
-        return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to compute an agent decision with no agentId provided.'));
+        return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to retrieve an agent decision tree with no agentId provided.'));
       }
-      let posixTimestamp = getPosixTimestamp(timestamp);
+      let posixTimestamp = Time(t).timestamp;
       if (_.isUndefined(posixTimestamp)) {
-        return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to compute an agent decision with no or invalid timestamp provided, supported formats are Numbers and Dates.'));
-      }
-      if (_.isUndefined(context) || !_.isObject(context)) {
-        return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to compute an agent decision with no or invalid context provided.'));
+        return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to retrieve an agent decision tree with an invalid timestamp provided.'));
       }
 
       return flushAgentContextOperations(agentId)
       .then(() => request({
-        method: 'POST',
-        path: '/agents/' + agentId + '/decision',
+        method: 'GET',
+        path: '/agents/' + agentId + '/decision/tree',
         query: {
           t: posixTimestamp
-        },
-        body: context
+        }
       }, this));
+    },
+    computeAgentDecision: function(agentId, t, ...contexts) {
+      if (_.isUndefined(agentId)) {
+        return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to compute an agent decision with no agentId provided.'));
+      }
+      let posixTimestamp = Time(t).timestamp;
+      if (_.isUndefined(posixTimestamp)) {
+        return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to compute an agent decision with no or invalid timestamp provided.'));
+      }
+      if (_.isUndefined(contexts) || _.size(contexts) === 0) {
+        return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to compute an agent decision with no context provided.'));
+      }
+
+      return flushAgentContextOperations(agentId)
+      .then(() => request({
+        method: 'GET',
+        path: '/agents/' + agentId + '/decision/tree',
+        query: {
+          t: posixTimestamp
+        }
+      }, this))
+      .then(tree => {
+        let decision = decide(tree, ...contexts);
+        decision.timestamp = posixTimestamp;
+        return decision;
+      });
     }
   });
 

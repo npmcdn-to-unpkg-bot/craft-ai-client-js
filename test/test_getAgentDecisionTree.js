@@ -1,14 +1,15 @@
 import craftai from '../src';
+import { parse } from 'craft-ai-interpreter';
 
 import MODEL_1 from './data/model_1.json';
 import MODEL_1_OPERATIONS_1 from './data/model_1_operations_1.json';
 
 const MODEL_1_OPERATIONS_1_TO = _.last(MODEL_1_OPERATIONS_1).timestamp;
 
-describe('client.computeAgentDecision(<agentId>, <timestamp>, <context>)', function() {
+describe('client.getAgentDecisionTree(<agentId>, <timestamp>)', function() {
   let client;
   let agent;
-  const agentId = 'compute_agent_decision_agent';
+  const agentId = 'get_agent_decision_tree_agent';
   before(function() {
     client = craftai(CRAFT_CFG);
     expect(client).to.be.ok;
@@ -26,25 +27,12 @@ describe('client.computeAgentDecision(<agentId>, <timestamp>, <context>)', funct
     return client.destroyAgent(agentId);
   });
   it('should succeed when using valid parameters', function() {
-    return client.computeAgentDecision(agent.id, MODEL_1_OPERATIONS_1_TO + 200, {
-      presence: 'none',
-      lightIntensity: 0.1
-    })
-      .then(context => {
-        expect(context).to.be.ok;
-        expect(context.decision.lightbulbColor).to.be.equal('black');
-      });
-  });
-  it('should succeed when using valid parameters (context override)', function() {
-    return client.computeAgentDecision(agent.id, MODEL_1_OPERATIONS_1_TO + 200, {
-      presence: 'none',
-      lightIntensity: 1
-    }, {
-      lightIntensity: 0.1
-    })
-      .then(context => {
-        expect(context).to.be.ok;
-        expect(context.decision.lightbulbColor).to.be.equal('black');
+    return client.getAgentDecisionTree(agent.id, MODEL_1_OPERATIONS_1_TO + 200)
+      .then(treeJson => {
+        expect(treeJson).to.be.ok;
+        const { tree, model } = parse(treeJson);
+        expect(tree).to.be.ok;
+        expect(model).to.be.deep.equal(model);
       });
   });
 });
