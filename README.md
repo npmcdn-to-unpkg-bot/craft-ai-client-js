@@ -284,6 +284,10 @@ client.computeAgentDecision(
 })
 ````
 
+> This method retrieve the decision tree then apply it on the given context,
+> To get a chance to store and reuse the decision tree, use `getAgentDecisionTree`
+> and `decide` instead.
+
 ### Logging ###
 
 The **craft ai** client is using

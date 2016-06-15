@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { Time } from 'craft-ai-interpreter';
+import { decide, Time } from 'craft-ai-interpreter';
 import * as errors from './errors';
 import Debug from 'debug';
 import DEFAULTS from './defaults';
@@ -236,7 +236,7 @@ export default function createClient(cfg) {
         }
       }, this));
     },
-    computeAgentDecision: function(agentId, t, context) {
+    computeAgentDecision: function(agentId, t, ...contexts) {
       if (_.isUndefined(agentId)) {
         return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to compute an agent decision with no agentId provided.'));
       }
@@ -244,19 +244,23 @@ export default function createClient(cfg) {
       if (_.isUndefined(posixTimestamp)) {
         return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to compute an agent decision with no or invalid timestamp provided.'));
       }
-      if (_.isUndefined(context) || !_.isObject(context)) {
-        return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to compute an agent decision with no or invalid context provided.'));
+      if (_.isUndefined(contexts) || _.size(contexts) === 0) {
+        return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to compute an agent decision with no context provided.'));
       }
 
       return flushAgentContextOperations(agentId)
       .then(() => request({
-        method: 'POST',
-        path: '/agents/' + agentId + '/decision',
+        method: 'GET',
+        path: '/agents/' + agentId + '/decision/tree',
         query: {
           t: posixTimestamp
-        },
-        body: context
-      }, this));
+        }
+      }, this))
+      .then(tree => {
+        let decision = decide(tree, ...contexts);
+        decision.timestamp = posixTimestamp;
+        return decision;
+      });
     }
   });
 

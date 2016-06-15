@@ -35,4 +35,16 @@ describe('client.computeAgentDecision(<agentId>, <timestamp>, <context>)', funct
         expect(context.decision.lightbulbColor).to.be.equal('black');
       });
   });
+  it('should succeed when using valid parameters (context override)', function() {
+    return client.computeAgentDecision(agent.id, MODEL_1_OPERATIONS_1_TO + 200, {
+      presence: 'none',
+      lightIntensity: 1
+    }, {
+      lightIntensity: 0.1
+    })
+      .then(context => {
+        expect(context).to.be.ok;
+        expect(context.decision.lightbulbColor).to.be.equal('black');
+      });
+  });
 });
