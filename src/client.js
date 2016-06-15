@@ -208,14 +208,14 @@ export default function createClient(cfg) {
         return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to get the agent public inspector url beause agentId isn\'t provided.'));
       }
       if (_.isUndefined(t)) {
-        return Promise.resolve(`${cfg.url}/public/inspector?owner=${cfg.owner}&agent=${agentId}&token=${cfg.token}`);
+        return Promise.resolve(`${cfg.url}/public/inspector?token=${cfg.token}&owner=${cfg.owner}&agent=${agentId}`);
       }
       else {
         let posixTimestamp = Time(t).timestamp;
         if (_.isUndefined(posixTimestamp)) {
           return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to get the agent public inspector url with no or invalid timestamp provided.'));
         }
-        return Promise.resolve(`${cfg.url}/public/inspector?owner=${cfg.owner}&agent=${agentId}&timestamp=${posixTimestamp}&token=${cfg.token}`);
+        return Promise.resolve(`${cfg.url}/public/inspector?token=${cfg.token}&owner=${cfg.owner}&agent=${agentId}&timestamp=${posixTimestamp}`);
       }
     },
     getAgentDecisionTree: function(agentId, t = undefined) {
