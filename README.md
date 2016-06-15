@@ -113,7 +113,21 @@ client.destroyAgent(
 })
 ````
 
-#### `getAgentInspectorUrl` ####
+#### Retrieve agent details ####
+
+````js
+client.getAgent(
+  'aphasic_parrot' // The agent id
+)
+.then(function(agent) {
+  // Agent details
+})
+.catch(function(error) {
+  // Catch errors here
+})
+````
+
+#### Retrieve the agent inspector URL ####
 
 ````js
 client.getAgentInspectorUrl(
@@ -141,7 +155,7 @@ client.addAgentContextOperations(
   'aphasic_parrot', // The agent id
   [ // The list of operations
     {
-      timestamp: 1464600000, // Operation timestamp, cf. https://beta.craft.ai/doc#header-timestamp
+      timestamp: 1464600000, // Operation timestamp, cf. https://beta.craft.ai/doc#timestamp
       diff: {
         presence: 'robert',
         lightIntensity: 0.4,
