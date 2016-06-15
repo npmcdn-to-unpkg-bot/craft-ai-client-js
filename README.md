@@ -239,6 +239,30 @@ client.getAgentContext(
 })
 ````
 
+### Decision Tree ###
+
+#### Retrieve decision tree ####
+
+````js
+import { decide, Time } from 'craft-ai';
+
+client.getAgentDecisionTree(
+  'aphasic_parrot', // The agent id
+  1464600256 // The timestamp at which the decision tree is retrieved
+)
+.then(function(tree) {
+  // Works with the given tree, e.g.
+  let decision = decide(tree, {
+    presence: 'gisele',
+    lightIntensity: 0.75
+  },
+  new Time('2010-01-01T05:06:30'));
+})
+.catch(function(error) {
+  // Catch errors here
+})
+````
+
 ### Decision ###
 
 #### Take decision ####
