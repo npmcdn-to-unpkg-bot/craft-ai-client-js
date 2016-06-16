@@ -1,4 +1,4 @@
-import craftai, { errors } from '../src';
+import craftai, { errors, Time } from '../src';
 
 import MODEL_1 from './data/model_1.json';
 import MODEL_1_OPERATIONS_1 from './data/model_1_operations_1.json';
@@ -70,14 +70,64 @@ describe('client.addAgentContextOperations(<agentId>, <operations>)', function()
       }
     ])
       .then(() => {
-        return client.getAgentContext(agent.id, '1998-04-23T04:33:00-05:00');
+        return client.getAgentContextOperations(agent.id);
       })
-      .then(context => {
-        expect(context.context).to.be.deep.equal({
-          presence: 'none',
+      .then(operations => {
+        expect(operations).to.be.deep.equal([
+          {
+            timestamp: 893323800,
+            diff: {
+              presence: 'robert',
+              lightIntensity: 0.4,
+              lightbulbColor: 'green'
+            }
+          },
+          {
+            timestamp: 893323945,
+            diff: {
+              presence: 'none'
+            }
+          }
+        ]);
+      });
+  });
+  it('should succeed when using operations with Time timestamps', function() {
+    return client.addAgentContextOperations(agent.id, [
+      {
+        timestamp: new Time('1998-04-23T04:30:00-05:00'),
+        diff: {
+          presence: 'robert',
           lightIntensity: 0.4,
           lightbulbColor: 'green'
-        });
+        }
+      },
+      {
+        timestamp: Time('1998-04-23T04:32:25-05:00'),
+        diff: {
+          presence: 'none'
+        }
+      }
+    ])
+      .then(() => {
+        return client.getAgentContextOperations(agent.id);
+      })
+      .then(operations => {
+        expect(operations).to.be.deep.equal([
+          {
+            timestamp: 893323800,
+            diff: {
+              presence: 'robert',
+              lightIntensity: 0.4,
+              lightbulbColor: 'green'
+            }
+          },
+          {
+            timestamp: 893323945,
+            diff: {
+              presence: 'none'
+            }
+          }
+        ]);
       });
   });
   it('should fail when using out of order operations with immediate flush)', function() {
