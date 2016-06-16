@@ -180,7 +180,7 @@ export default function createClient(cfg) {
       }
 
       agentsOperations[agentId] = (agentsOperations[agentId] || []).concat(
-        _.map(operations, o => _.defaults(o, {
+        _.map(operations, o => _.extend(o, {
           timestamp: Time(o.timestamp).timestamp
         }))
       );
