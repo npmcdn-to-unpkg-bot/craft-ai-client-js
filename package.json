@@ -23,7 +23,10 @@
   ],
   "scripts": {
     "update_readme": "download http://www.craft.ai/content/api/js.md > README.md",
-    "build": "babel src --out-dir lib",
+    "build": "npm run build_node && npm run build_browser:production && npm run build_browser:dev",
+    "build_node": "babel src --out-dir lib",
+    "build_browser:production": "NODE_ENV=production webpack",
+    "build_browser:dev": "NODE_ENV=development webpack",
     "lint": "eslint .",
     "fix_lint": "eslint --fix .",
     "test": "npm run test_node && npm run lint",
@@ -46,7 +49,8 @@
     "json-loader": "0.5.4",
     "mocha": "2.5.3",
     "mocha-loader": "0.7.1",
-    "webpack-dev-server": "1.14.1"
+    "webpack": "1.13.1",
+    "webpack-dev-server": "1.14.0"
   },
   "dependencies": {
     "craft-ai-interpreter": "0.0.6",
