@@ -32,7 +32,8 @@
     "test": "npm run test_node && npm run lint",
     "test_node": "mocha",
     "dev_browser": "cd test/browser && webpack-dev-server",
-    "prepublish": "npm run build"
+    "prepublish": "npm run build",
+    "publish_bundle": "./gh-deploy.sh"
   },
   "devDependencies": {
     "babel-cli": "6.10.1",
