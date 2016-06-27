@@ -17,6 +17,9 @@
     "type": "git",
     "url": "https://github.com/craft-ai/craft-ai-client-js"
   },
+  "browser":{
+    "lodash": "lodash/lodash.min.js"
+  },
   "keywords": [
     "ai",
     "craft-ai"

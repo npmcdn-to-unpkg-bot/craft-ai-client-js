@@ -8,9 +8,11 @@ var configuration = {
   },
   plugins: [
     new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
-      'process.env.CRAFT_TOKEN': undefined,
-      'process.env.CRAFT_URL': undefined
+      'process.env' :{
+        'NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+        'CRAFT_TOKEN': undefined,
+        'CRAFT_URL': undefined
+      }
     })
   ],
   module: {
