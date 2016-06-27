@@ -19,6 +19,7 @@ deploy:
 - provider: script
   script: npm run gh_deploy
   on:
+    tags: true
     repo: craft-ai/craft-ai-client-js
     node: '0.12'
 env:
