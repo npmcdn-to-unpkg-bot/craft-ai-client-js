@@ -1,6 +1,6 @@
 {
   "name": "craft-ai",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "craft ai API isomorphic (compatible with browser and nodejs) javascript client",
   "author": {
     "name": "craft ai",
@@ -17,7 +17,7 @@
     "type": "git",
     "url": "https://github.com/craft-ai/craft-ai-client-js"
   },
-  "browser":{
+  "browser": {
     "lodash": "lodash/lodash.min.js"
   },
   "keywords": [
