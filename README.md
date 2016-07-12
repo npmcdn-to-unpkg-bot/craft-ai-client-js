@@ -12,9 +12,9 @@
 
 **craft ai** is based around the concept of **agents**. In most use cases, one agent is created per user or per device.
 
-An agent has the **context** of its user or device's context, and learns which **decision** to take based on the evolution of this context in the form of a **decision tree**.
+An agent is an independant module that store the history of the **context** of its user or device's context, and learns which **decision** to take based on the evolution of this context in the form of a **decision tree**.
 
-### Retrieve your `owner` and `token` ###
+### Retrieve your credentials ###
 
 **craft ai** agents belong to **owners**, in the current version, each identified users defines a owner, in the future we will introduce shared organization-level owners.
 
@@ -45,6 +45,16 @@ _These instructions are compliant with a browser project (be it packaged with
 [Browserify](http://browserify.org) or [Webpack](http://webpack.github.io)) as
 well as with a Node.js project._
 
+or you can include our online pre-generated bundle in your html file
+
+```html
+<script type="text/javascript" src="http://www.craft.ai/craft-ai-client-js/craft-ai.js"></script>
+```
+there's also a minified version
+
+```html
+<script type="text/javascript" src="http://www.craft.ai/craft-ai-client-js/craft-ai.min.js"></script>
+```
 ### Initialize ###
 
 ````js
@@ -92,16 +102,16 @@ Each agent is based upon a model, the model defines:
 
 - the [`time_quantum`](#timestamp).
 
-##### Context properties types ####
+#### Context properties types ####
 
-###### Base types: `enum` and `continuous` ######
+##### Base types: `enum` and `continuous` #####
 
 `enum` and `continuous` are the two base **craft ai** types:
 
 - `enum` properties can take any string values;
 - `continuous` properties can take any real number value.
 
-###### Time types: `timezone`, `time_of_day` and `day_of_week` ######
+##### Time types: `timezone`, `time_of_day` and `day_of_week` #####
 
 **craft ai** defines 3 types related to time:
 
