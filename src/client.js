@@ -52,6 +52,7 @@ export default function createClient(cfg) {
     }
     else {
       // Something to flush, in chunks !
+      _.orderBy(operationsToFlush, 'timestamp');
       return _(operationsToFlush)
       .chunk(cfg.operationsChunksSize)
       .reduce((p, chunk) => p.then(
