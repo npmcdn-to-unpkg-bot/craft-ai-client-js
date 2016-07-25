@@ -6,6 +6,11 @@ import Time from './time';
 
 export default createClient;
 
+createClient.decide = decide;
+createClient.DEFAULT = DEFAULT;
+createClient.errors = errors;
+createClient.Time = Time;
+
 export {
   createClient,
   decide,
