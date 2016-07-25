@@ -1,28 +1,26 @@
-# **craft ai** javascript client #
-
-[**craft ai**](http://craft.ai) API isomorphic javascript client.
+# **craft ai** isomorphic javascript client #
 
 [![Version](https://img.shields.io/npm/v/craft-ai.svg?style=flat-square)](https://npmjs.org/package/craft-ai) [![Build](https://img.shields.io/travis/craft-ai/craft-ai-client-js/master.svg?style=flat-square)](https://travis-ci.org/craft-ai/craft-ai-client-js) [![License](https://img.shields.io/badge/license-BSD--3--Clause-42358A.svg?style=flat-square)](LICENSE) [![Dependencies](https://img.shields.io/david/craft-ai/craft-ai-client-js.svg?style=flat-square)](https://david-dm.org/craft-ai/craft-ai-client-js) [![Dev Dependencies](https://img.shields.io/david/dev/craft-ai/craft-ai-client-js.svg?style=flat-square)](https://david-dm.org/craft-ai/craft-ai-client-js#info=devDependencies)
 
-**craft ai** enables developers to create applications and services that adapt to each individual user.
-
-> :construction: **craft ai** is currently in private beta, you can request an access at https://beta.craft.ai/signup
+**craft ai** _AI-as-a-service_ enables developers to create Apps and Things that adapt to each user. To go beyond useless dashboards and spammy notifications, **craft ai** learns how users behave to automate recurring tasks, make personalized recommendations, or detect anomalies.
 
 ## Get Started! ##
 
-**craft ai** is based around the concept of **agents**. In most use cases, one agent is created per user or per device.
+### 0 - Signup ###
 
-An agent is an independant module that store the history of the **context** of its user or device's context, and learns which **decision** to take based on the evolution of this context in the form of a **decision tree**.
+If you're reading this you are probably already registered with **craft ai**, if not, head to [`https://beta.craft.ai/signup`](https://beta.craft.ai/signup).
 
-### Retrieve your credentials ###
+> :construction: **craft ai** is currently in private beta, as such we validate accounts, this step should be quick.
 
-**craft ai** agents belong to **owners**, in the current version, each identified users defines a owner, in the future we will introduce shared organization-level owners.
+### 1 - Retrieve your credentials ###
 
-On top of that, calls to **craft ai** are authenticated using personal **JWT tokens**.
+Once your account is setup, you need to retrieve your **owner** and **token**. Both are available in the 'Settings' tab in the **craft ai** control center at [`https://beta.craft.ai/settings`](https://beta.craft.ai/settings).
 
-> :information_source: To retrieve your **owner** and **token**, visit the 'Settings' tab in the **craft ai** control center at [`https://beta.craft.ai/settings`](https://beta.craft.ai/settings).
+### 2 - Setup ###
 
-### Install ###
+#### Install ####
+
+##### [Node.js](https://nodejs.org/en/) / [Webpack](http://webpack.github.io) / [Browserify](http://browserify.org) #####
 
 Let's first install the package from npm.
 
@@ -35,29 +33,28 @@ Then import it in your code
 var craftai = require('craft-ai').createClient;
 ```
 
-or using es2015 syntax
+or using [es2015](https://babeljs.io/docs/learn-es2015/) syntax
 
 ```js
 import craftai from 'craft-ai';
 ```
 
-_These instructions are compliant with a browser project (be it packaged with
-[Browserify](http://browserify.org) or [Webpack](http://webpack.github.io)) as
-well as with a Node.js project._
+##### Plain Old Javascript #####
 
-or you can include our online pre-generated bundle in your html file
+Include our online pre-generated bundle in your html file
 
 ```html
 <script type="text/javascript" src="http://www.craft.ai/craft-ai-client-js/craft-ai.js"></script>
 ```
+
 there's also a minified version
 
 ```html
 <script type="text/javascript" src="http://www.craft.ai/craft-ai-client-js/craft-ai.min.js"></script>
 ```
-### Initialize ###
+#### Initialize ####
 
-````js
+```js
 let client = craftai({
   owner: '{owner}',
   token: '{token}',
@@ -65,31 +62,244 @@ let client = craftai({
   operationsChunksSize: {max_number_of_operations_sent_at_once},
   // Optional, default value is 60
   operationsAdditionWait: {time_in_seconds_waited_before_flushing_operations_cache}
+});
+```
+
+### 3 - Create an agent ###
+
+**craft ai** is based around the concept of **agents**. In most use cases, one agent is created per user or per device.
+
+An agent is an independent module that stores the history of the **context** of its user or device's context, and learns which **decision** to take based on the evolution of this context in the form of a **decision tree**.
+
+In this example, we will create an agent that learns the **decision model** of a light bulb based on the time of the day and the number of people in the room. In practice, it means the agent's context have 4 properties:
+
+- `peopleCount` which is a `continuous` property,
+- `timeOfDay` which is a `time_of_day` property,
+- `timezone`, a property of type `timezone` needed to generate proper values for `timeOfDay` (cf. the [context properties type section](#context-properties-types) for further information),
+- and finally `lightbulbState` which is an `enum` property that is also the output of this model.
+
+```js
+var AGENT_ID = 'my_first_agent';
+
+client.createAgent(
+  {
+    context: {
+      peopleCount: {
+        type: 'continuous'
+      },
+      timeOfDay: {
+        type: 'time_of_day'
+      },
+      timezone: {
+        type: 'timezone'
+      },
+      lightbulbState: {
+        type: 'enum'
+      }
+    },
+    output: [ 'lightbulbState' ]
+  },
+  AGENT_ID
+)
+.then(function(agent) {
+  console.log('Agent ' + agent.id + ' successfully created!');
 })
-````
+.catch(function(error) {
+  console.err('Error!', error);
+});
+```
 
-### And then... ###
+Pretty straightforward to test! Open [`https://beta.craft.ai/inspector`](https://beta.craft.ai/inspector), your agent is now listed.
 
-The basic setup is done, you need to integrate the following 4 operations in your app:
+Now, if you run that a second time, you'll get an error: the agent `'my_first_agent'` is already existing. Let's see how we can destroy it before recreating it.
 
-1. [Create an agent](#create),
-2. When the context is updated, let the agent know by [adding context operations](#add-operations),
-3. Regularly, compute the [decision tree](#compute) from the agent's context history,
-4. Then use it to [take decisions](#take-decision).
+```js
+var AGENT_ID = 'my_first_agent';
 
-That's it! :+1:
+client.destroyAgent(AGENT_ID)
+.then(function() {
+  console.log('Agent ' + AGENT_ID + ' no longer exists.');
+  return client.createAgent(/*...*/);
+})
+.then(function(agent) {
+  console.log('Agent ' + agent.id + ' successfully created!');
+})
+.catch(function(error) {
+  console.err('Error!', error);
+});
+```
+
+_For further information, check the ['create agent' reference documentation](#create)._
+
+### 4 - Add context operations ###
+
+We have now created our first agent but it is not able to do much yet, to learn a decision model it needs to be provided with data, in **craft ai** these are called context operations.
+
+In the following we add 8 operations:
+
+1. The initial one sets the initial state of the agent, on July the 25th of 2016 at 5:30, in Paris, nobody is there and the light is off;
+2. At 7:02, someone enters the room the light is turned on;
+3. At 7:15, someone else enters the room;
+4. At 7:31, the light is turned off;
+5. At 8:12, everyone leave the room;
+6. At 19:23, 2 people enters the room;
+7. At 22:35, the light is turned on;
+8. At 23:06, everyone leave the room and the light is turned off.
+
+```js
+var AGENT_ID = 'my_first_agent';
+
+client.destroyAgent(AGENT_ID)
+.then(function() {
+  console.log('Agent ' + AGENT_ID + ' no longer exists.');
+  return client.createAgent(/*...*/);
+})
+.then(function(agent) {
+  console.log('Agent ' + agent.id + ' successfully created!');
+  return client.addAgentContextOperations(
+    AGENT_ID,
+    [
+      {
+        timestamp: 1469410200,
+        diff: {
+          tz: '+02:00',
+          peopleCount: 0,
+          lightbulbState: 'OFF'
+        }
+      },
+      {
+        timestamp: 1469415720,
+        diff: {
+          peopleCount: 1,
+          lightbulbState: 'ON'
+        }
+      },
+      {
+        timestamp: 1469416500,
+        diff: {
+          peopleCount: 2
+        }
+      },
+      {
+        timestamp: 1469417460,
+        diff: {
+          lightbulbState: 'OFF'
+        }
+      },
+      {
+        timestamp: 1469419920,
+        diff: {
+          peopleCount: 0
+        }
+      },
+      {
+        timestamp: 1469460180,
+        diff: {
+          peopleCount: 2
+        }
+      },
+      {
+        timestamp: 1469471700,
+        diff: {
+          lightbulbState: 'ON'
+        }
+      },
+      {
+        timestamp: 1469473560,
+        diff: {
+          peopleCount: 0
+        }
+      }
+    ]
+  );
+})
+.then(function(agent) {
+  console.log('Successfully added initial operations to agent ' + agent.id + '.');
+})
+.catch(function(error) {
+  console.err('Error!', error);
+});
+```
+
+In real-world applications, you'll probably do the same kind of thing when the agent is created and then regularly throughout the lifetime of the agent with newer data.
+
+_For further information, check the ['add context operations' reference documentation](#add-operations)._
+
+### 5 - Compute the decision tree ###
+
+The agent has acquire a context history, we can now compute a decision tree from it!
+
+The decision tree is computed at a given timestamp, which means it will consider the context history from the creation of this agent up to this moment. Let's first try to compute the decision tree at midnight on July the 26th of 2016.
+
+```js
+var AGENT_ID = 'my_first_agent';
+
+client.destroyAgent(AGENT_ID)
+.then(function() {
+  console.log('Agent ' + AGENT_ID + ' no longer exists.');
+  return client.createAgent(/*...*/);
+})
+.then(function(agent) {
+  console.log('Agent ' + agent.id + ' successfully created!');
+  return client.addAgentContextOperations(AGENT_ID, /*...*/);
+})
+.then(function(agent) {
+  console.log('Successfully added initial operations to agent ' + agent.id + '.');
+  return client.getAgentDecisionTree(AGENT_ID, 1469476800);
+})
+.then(function(tree) {
+  console.log('Decision tree retrieved!', tree);
+})
+.catch(function(error) {
+  console.err('Error!', error);
+});
+```
+
+Try to retrieve the tree at different timestamps to see how it gradually learns from the new operations. To visualize the trees, use the [inspector](https://beta.craft.ai/inspector)!
+
+_For further information, check the ['compute decision tree' reference documentation](#compute)._
+
+### 6 - Take a decision ###
+
+Once the decision tree is computed it can be used to take a decision. In our case it is basically answering this type of question: "What is the anticipated **state of the lightbulb** at 7:15 if there is 2 persons in the room ?".
+
+```js
+var AGENT_ID = 'my_first_agent';
+
+client.destroyAgent(AGENT_ID)
+.then(function() {
+  console.log('Agent ' + AGENT_ID + ' no longer exists.');
+  return client.createAgent(/*...*/);
+})
+.then(function(agent) {
+  console.log('Agent ' + agent.id + ' successfully created!');
+  return client.addAgentContextOperations(AGENT_ID, /*...*/);
+})
+.then(function(agent) {
+  console.log('Successfully added initial operations to agent ' + agent.id + '.');
+  return client.getAgentDecisionTree(AGENT_ID, 1469476800);
+})
+.then(function(tree) {
+  console.log('Decision tree retrieved!', tree);
+  let res = craftai.decide(tree, {
+    timezone: '+02:00',
+    timeOfDay: 7.25,
+    peopleCount: 2
+  });
+  console.log('The anticipated lightbulb state is "' + res.decision.lightbulbState + '".');
+})
+.catch(function(error) {
+  console.err('Error!', error);
+});
+```
+
+_For further information, check the ['take decision' reference documentation](#take-decision)._
 
 ## API ##
 
-### Timestamp ###
+### Owner ###
 
-As you'll see in the reference, the **craft ai** API heavily relies on `timestamps`. A `timestamp` is an instant represented as a [Unix time](https://en.wikipedia.org/wiki/Unix_time), that is to say the amount of seconds elapsed since Thursday, 1 January 1970 at midnight UTC. In most programming languages this representation is easy to retrieve, you can refer to [**this page**](https://github.com/techgaun/unix-time/blob/master/README.md) to find out how. The **craft ai** API expects integer values for `timestamps`. If your `timestamps` do not use this representation correctly, your agent will not learn properly, especially if if relies on time.
-
-In **craft ai**, `timestamps` are used to:
-1. **order** the different states of the agents, i.e. a context update occurring at a `timestamp` of _14500000**10**_ takes place **before** an update occuring at _14500000**15**_;
-2. **measure** how long an agent is in a given state, i.e. if its color becomes _blue_ at a `timestamp` of _14500000**10**_, _red_ at _14500000**20**_ and again _blue_ at _14500000**25**_, between _14500000**10**_ and _14500000**25**_ it has been _blue_ twice as long as _red_.
-
-The agents model's `time_quantum` describes, in the same representation as `timestamps`, the minimum amount of time that is meaningful for an agent. Context updates occurring faster than this quantum won't be taken into account.
+**craft ai** agents belong to **owners**. In the current version, each identified users defines a owner, in the future we will introduce shared organization-level owners.
 
 ### Model ###
 
@@ -100,7 +310,7 @@ Each agent is based upon a model, the model defines:
 
 > :warning: In the current version, only one output property can be provided, and must be of type `enum`.
 
-- the [`time_quantum`](#timestamp).
+- the `time_quantum` is the minimum amount of time, in seconds, that is meaningful for an agent; context updates occurring faster than this quantum won't be taken into account.
 
 #### Context properties types ####
 
@@ -199,13 +409,63 @@ provided continuously.
 }
 ```
 
+### Timestamp ###
+
+**craft ai** API heavily relies on `timestamps`. A `timestamp` is an instant represented as a [Unix time](https://en.wikipedia.org/wiki/Unix_time), that is to say the amount of seconds elapsed since Thursday, 1 January 1970 at midnight UTC. In most programming languages this representation is easy to retrieve, you can refer to [**this page**](https://github.com/techgaun/unix-time/blob/master/README.md) to find out how.
+
+### `craftai.Time` ###
+
+The `craftai.Time` class facilitates the handling of time types in **craft ai**. It is able to extract the different **craft ai** formats from various _datetime_ representations, thanks to [Moment.js](http://momentjs.com).
+
+```js
+// From a unix timestamp and an explicit UTC offset
+const t1 = new craftai.Time(1465496929, '+10:00');
+
+// t1 === {
+//   utc: '2016-06-09T18:28:49.000Z',
+//   timestamp: 1465496929,
+//   day_of_week: 4,
+//   time_of_day: 4.480277777777778,
+//   timezone: '+10:00'
+// }
+
+// From a unix timestamp and using the local UTC offset.
+const t2 = new craftai.Time(1465496929);
+
+// Value are valid if in Paris !
+// t2 === {
+//   utc: '2016-06-09T18:28:49.000Z',
+//   timestamp: 1465496929,
+//   day_of_week: 3,
+//   time_of_day: 20.480277777777776,
+//   timezone: '+02:00'
+// }
+
+// From a ISO 8601 string
+const t3 = new craftai.Time('1977-04-22T01:00:00-05:00');
+
+// t3 === {
+//   utc: '1977-04-22T06:00:00.000Z',
+//   timestamp: 230536800,
+//   day_of_week: 4,
+//   time_of_day: 1,
+//   timezone: '-05:00'
+// }
+
+// Retrieve the current time with the local UTC offset
+const now = new craftai.Time();
+
+// Retrieve the current time with the given UTC offset
+const nowP5 = new craftai.Time(undefined, '+05:00');
+```
+
 ### Agent ###
 
 #### Create ####
 
 Create a new agent, and create its [model](#model).
 
-````js
+```js
 client.createAgent(
   { // The model
     context: {
@@ -237,7 +497,7 @@ client.createAgent(
 .catch(function(error) {
   // Catch errors here
 })
-````
+```
 
 ##### `destroyOnExit` #####
 
@@ -254,7 +514,7 @@ event.
 
 #### Destroy ####
 
-````js
+```js
 client.destroyAgent(
   'aphasic_parrot' // The agent id
 )
@@ -264,11 +524,11 @@ client.destroyAgent(
 .catch(function(error) {
   // Catch errors here
 })
-````
+```
 
 #### Retrieve ####
 
-````js
+```js
 client.getAgent(
   'aphasic_parrot' // The agent id
 )
@@ -278,11 +538,11 @@ client.getAgent(
 .catch(function(error) {
   // Catch errors here
 })
-````
+```
 
 #### Retrieve the agent inspector URL ####
 
-````js
+```js
 client.getAgentInspectorUrl(
   'aphasic_parrot', // The agent id.
   1464600256 // optional, the timestamp for which you want to inspect the tree.
@@ -293,7 +553,7 @@ client.getAgentInspectorUrl(
 .catch(function(error) {
   // Catch errors here
 })
-````
+```
 
 ### Context ###
 
@@ -302,7 +562,7 @@ client.getAgentInspectorUrl(
 By default, this method adds the given operations to a cache that is flushed at
 least once every `cfg.operationsAdditionWait`.
 
-````js
+```js
 client.addAgentContextOperations(
   'aphasic_parrot', // The agent id
   [ // The list of operations
@@ -332,14 +592,14 @@ client.addAgentContextOperations(
 .catch(function(error) {
   // Catch errors here
 })
-````
+```
 
 ##### Error handling #####
 
 When an addition is cached, subsequent method calls related to this agent will
 force a flush before proceeding. For example:
 
-````js
+```js
 // Adding a first bunch of context operations
 client.addAgentContextOperations('aphasic_parrot', [ /* ... */ ])
 .then(function() {
@@ -361,11 +621,11 @@ client.addAgentContextOperations('aphasic_parrot', [ /* ... */ ])
   // Catch errors related to the previous calls to
   // `client.addAgentContextOperations` as well as `client.getAgentContext`
 })
-````
+```
 
 #### List operations ####
 
-````js
+```js
 client.getAgentContextOperations(
   'aphasic_parrot' // The agent id
 )
@@ -375,11 +635,11 @@ client.getAgentContextOperations(
 .catch(function(error) {
   // Catch errors here
 })
-````
+```
 
 #### Retrieve state ####
 
-````js
+```js
 client.getAgentContext(
   'aphasic_parrot', // The agent id
   1464600256 // The timestamp at which the context state is retrieved
@@ -390,35 +650,30 @@ client.getAgentContext(
 .catch(function(error) {
   // Catch errors here
 })
-````
+```
 
 ### Decision tree ###
 
 #### Compute ####
 
-````js
-import { decide, Time } from 'craft-ai';
-
+```js
 client.getAgentDecisionTree(
   'aphasic_parrot', // The agent id
   1464600256 // The timestamp at which the decision tree is retrieved
 )
 .then(function(tree) {
-  // Works with the given tree, e.g.
-  let decision = decide(tree, {
-    presence: 'gisele',
-    lightIntensity: 0.75
-  },
-  new Time('2010-01-01T05:06:30'));
+  // Works with the given tree
 })
 .catch(function(error) {
   // Catch errors here
 })
-````
+```
 
 #### Take Decision ####
 
-````js
+The first method retrieves the decision tree then apply it on the given context.
+
+```js
 client.computeAgentDecision(
   'aphasic_parrot', // The agent id
   1464600256, // The timestamp at which the decision is taken
@@ -433,11 +688,64 @@ client.computeAgentDecision(
 .catch(function(error) {
   // Catch errors here
 })
-````
+```
 
-> This method retrieve the decision tree then apply it on the given context,
-> To get a chance to store and reuse the decision tree, use `getAgentDecisionTree`
-> and `decide` instead.
+To get a chance to store and reuse the decision tree, use `getAgentDecisionTree` and use `craftai.decide`, a simple function evaluating a decision tree **offline**.
+
+```js
+// `tree` is the decision tree as retrieved through the craft ai REST API
+let tree = { ... };
+
+// Compute the decision on a context created from the given one and filling the
+// `day_of_week`, `time_of_day` and `timezone` properties from the given `Time`
+let decision = craftai.decide(
+  tree,
+  {
+    presence: 'gisele'
+  },
+  new Time('2010-01-01T05:06:30'));
+```
+
+> Any number of partial contextes and/or `craftai.Time` instances can be provided to `decide`, it follows the same semantics than [Object.assign(...)](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object/assign): the later arguments overriding the properties value from the previous ones)
+
+The computed `decision` looks like:
+
+```js
+{
+  context: { // In which context the decision was taken
+    presence: 'gisele',
+    day: 4,
+    time: 5.108333333333333,
+    tz: '+01:00'
+  },
+  decision: { // The decision itself
+    blind: 'OPEN'
+  },
+  confidence: 0.9937745256361138, // The confidence in the decision
+  predicates: [ // The ordered list of predicates that were validated to reach this decision
+    {
+      property: 'timeOfDay',
+      op: 'continuous.greaterthanorequal',
+      value: 6
+    },
+    {
+      property: 'timeOfDay',
+      op: 'continuous.lessthan',
+      value: 19
+    },
+    {
+      property: 'dayOfWeek',
+      op: 'continuous.greaterthanorequal',
+      value: 5
+    },
+    {
+      property: 'timeOfDay',
+      op: 'continuous.greaterthanorequal',
+      value: 10
+    }
+  ]
+}
+```
 
 ### Logging ###
 
