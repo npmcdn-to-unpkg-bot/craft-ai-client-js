@@ -1,5 +1,5 @@
 import craftai from '../src';
-import { parse } from 'craft-ai-interpreter';
+import parse from '../src/parse';
 
 import MODEL_1 from './data/model_1.json';
 import MODEL_1_OPERATIONS_1 from './data/model_1_operations_1.json';

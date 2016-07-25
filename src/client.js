@@ -1,10 +1,11 @@
 import _ from 'lodash';
-import { decide, Time } from 'craft-ai-interpreter';
 import * as errors from './errors';
 import Debug from 'debug';
+import decide from './decide';
 import DEFAULTS from './defaults';
 import onExit from './onExit';
 import request from './request';
+import Time from './time';
 
 let debug = Debug('craft-ai:client');
 

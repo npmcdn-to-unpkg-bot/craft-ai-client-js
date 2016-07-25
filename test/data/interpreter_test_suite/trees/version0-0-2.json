@@ -1,0 +1,69 @@
+[
+  {
+    "version": "0.0.2"
+  },
+  {
+    "model": {
+      "context": {
+        "timeOfDay": {
+          "type": "enum"
+        },
+        "presence": {
+          "type": "enum"
+        },
+        "tvState": {
+          "type": "enum"
+        },
+        "doorState": {
+          "type": "enum"
+        }
+      },
+      "output": [
+        "doorState"
+      ],
+      "time_quantum": 6000,
+      "deactivate_sampling": true
+    },
+    "firstTimestamp": 10,
+    "lastTimestamp": 350
+  },
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "confidence": 0.9130586,
+            "predicate": {
+              "op": "enum.equal",
+              "value": "off"
+            },
+            "value": "locked"
+          },
+          {
+            "confidence": 0.9130586,
+            "predicate": {
+              "op": "enum.equal",
+              "value": "on"
+            },
+            "value": "open"
+          }
+        ],
+        "predicate": {
+          "op": "enum.equal",
+          "value": "noone"
+        },
+        "predicate_property": "tvState"
+      },
+      {
+        "confidence": 0.9545537,
+        "predicate": {
+          "op": "enum.equal",
+          "value": "someone"
+        },
+        "value": "open"
+      }
+    ],
+    "output_property": "doorState",
+    "predicate_property": "presence"
+  }
+]

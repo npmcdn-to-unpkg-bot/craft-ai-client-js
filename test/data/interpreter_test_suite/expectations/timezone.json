@@ -1,0 +1,28 @@
+[
+  {
+    "title": "should be 'down' on monday at 5am",
+    "context": {
+      "time": 5,
+      "day":0,
+      "tz":"+01:00"
+    },
+    "output": {
+      "context": {
+        "day": 0,
+        "time": 5,
+        "tz": "+01:00"
+      },
+      "decision": {
+        "value": "CLOSED"
+      },
+      "confidence": 0.9991490244865417,
+      "predicates": [
+        {
+          "op": "continuous.lessthan",
+          "property": "time",
+          "value": "7.1666665"
+        }
+      ]
+    }
+  }
+]

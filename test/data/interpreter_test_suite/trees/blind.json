@@ -1,0 +1,77 @@
+[
+  {
+    "version": "0.0.1"
+  },
+  {
+    "children": [
+      {
+        "predicate": {
+          "op": "continuous.lessthan",
+          "value": "6"
+        },
+        "value": "Down",
+        "confidence": 0.9973324159369238
+      },
+      {
+        "predicate": {
+          "op": "continuous.greaterthanorequal",
+          "value": "6"
+        },
+        "children": [
+          {
+            "predicate": {
+              "op": "continuous.lessthan",
+              "value": "19"
+            },
+            "children": [
+              {
+                "predicate": {
+                  "op": "continuous.lessthan",
+                  "value": "5"
+                },
+                "value": "Up",
+                "confidence": 0.9982397705379514
+              },
+              {
+                "predicate": {
+                  "op": "continuous.greaterthanorequal",
+                  "value": "5"
+                },
+                "children": [
+                  {
+                    "predicate": {
+                      "op": "continuous.lessthan",
+                      "value": "10"
+                    },
+                    "value": "Down",
+                    "confidence": 0.9869476177551877
+                  },
+                  {
+                    "predicate": {
+                      "op": "continuous.greaterthanorequal",
+                      "value": "10"
+                    },
+                    "value": "Up",
+                    "confidence": 0.9937745256361138
+                  }
+                ],
+                "predicate_property": "timeOfDay"
+              }
+            ],
+            "predicate_property": "dayOfWeek"
+          },
+          {
+            "predicate": {
+              "op": "continuous.greaterthanorequal",
+              "value": "19"
+            },
+            "value": "Down",
+            "confidence": 0.9966108113764548
+          }
+        ],
+        "predicate_property": "timeOfDay"
+      }
+    ],
+    "predicate_property": "timeOfDay"
+  }
+]

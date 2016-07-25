@@ -1,0 +1,74 @@
+[
+  {
+    "title": "fails if the given context is not complete",
+    "context": {
+      "dayOfWeek": 0
+    },
+    "error": {
+      "message": "Unable to take decision, property \"timeOfDay\" is not defined in the given context."
+    }
+  },
+  {
+    "title": "should be 'down' on monday at 5am",
+    "context": {
+      "timeOfDay": 5,
+      "dayOfWeek":0
+    },
+    "output": {
+      "context": {
+        "dayOfWeek": 0,
+        "timeOfDay": 5
+      },
+      "decision": {
+        "value": "Down"
+      },
+      "confidence": 0.9973324159369238,
+      "predicates": [
+        {
+          "property": "timeOfDay",
+          "op": "continuous.lessthan",
+          "value": "6"
+        }
+      ]
+    }
+  },
+  {
+    "title": "should be 'up' on sunday at 12pm",
+    "context": {
+      "timeOfDay": 12,
+      "dayOfWeek": 6
+    },
+    "output": {
+      "decision": {
+        "value": "Up"
+      },
+      "context": {
+        "timeOfDay": 12,
+        "dayOfWeek": 6
+      },
+      "confidence": 0.9937745256361138,
+      "predicates": [
+        {
+          "property": "timeOfDay",
+          "op": "continuous.greaterthanorequal",
+          "value": "6"
+        },
+        {
+          "property": "timeOfDay",
+          "op": "continuous.lessthan",
+          "value": "19"
+        },
+        {
+          "property": "dayOfWeek",
+          "op": "continuous.greaterthanorequal",
+          "value": "5"
+        },
+        {
+          "property": "timeOfDay",
+          "op": "continuous.greaterthanorequal",
+          "value": "10"
+        }
+      ]
+    }
+  }
+]

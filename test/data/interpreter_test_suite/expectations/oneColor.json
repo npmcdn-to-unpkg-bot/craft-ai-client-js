@@ -1,0 +1,14 @@
+[
+  {
+    "title": "succeeds with an empty context",
+    "context": {},
+    "output": {
+      "context": {},
+      "decision": {
+        "value": "#ffffff"
+      },
+      "confidence": 0.99,
+      "predicates": []
+    }
+  }
+]
