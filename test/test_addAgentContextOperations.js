@@ -52,6 +52,55 @@ describe('client.addAgentContextOperations(<agentId>, <operations>)', function()
         expect(retrievedAgent.lastTimestamp).to.be.equal(MODEL_1_OPERATIONS_1_TO);
       });
   });
+  it('should succeed when passing unordered diffs', function() {
+    return client.addAgentContextOperations(agent.id, 
+      [
+        {
+          'timestamp': 1464600000,
+          'diff': {
+            'presence': 'robert',
+            'lightIntensity': 0.4,
+            'lightbulbColor': 'green'
+          }
+        },
+        {
+          'timestamp': 1464601500,
+          'diff': {
+            'presence': 'robert',
+            'lightIntensity': 0.6,
+            'lightbulbColor': 'green'
+          }
+        },
+        {
+          'timestamp': 1464601000,
+          'diff': {
+            'presence': 'gisele',
+            'lightIntensity': 0.4,
+            'lightbulbColor': 'blue'
+          }
+        },
+        {
+          'timestamp': 1464600500,
+          'diff': {
+            'presence': 'none',
+            'lightIntensity': 0,
+            'lightbulbColor': 'black'
+          }
+        }          
+      ]
+    )
+    .then(() => {
+      return client.getAgentContextOperations(agent.id);
+    })
+    .then(retrievedOperations => {
+      expect(retrievedOperations).to.be.deep.equal(MODEL_1_OPERATIONS_1);
+      return client.getAgent(agent.id);
+    })
+    .then(retrievedAgent => {
+      expect(retrievedAgent.firstTimestamp).to.be.equal(MODEL_1_OPERATIONS_1_FROM);
+      expect(retrievedAgent.lastTimestamp).to.be.equal(MODEL_1_OPERATIONS_1_TO);
+    });
+  });
   it('should succeed when using operations with ISO 8601 timestamps', function() {
     return client.addAgentContextOperations(agent.id, [
       {
