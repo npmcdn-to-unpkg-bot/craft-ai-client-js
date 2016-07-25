@@ -1,0 +1,26 @@
+[
+  {
+    "version": "a_bad_version"
+  },
+  {
+    "children": [
+      {
+        "predicate": {
+          "op": "continuous.lessthan",
+          "value": "6"
+        },
+        "value": "Down",
+        "confidence": 0.9973324159369238
+      },
+      {
+        "predicate": {
+          "op": "continuous.greaterthanorequal",
+          "value": "6"
+        },
+        "value": "Up",
+        "confidence": 0.3
+      }
+    ],
+    "predicate_property": "timeOfDay"
+  }
+]
