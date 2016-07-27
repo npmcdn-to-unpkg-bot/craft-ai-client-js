@@ -38,7 +38,7 @@ describe('client.addAgentContextOperations(<agentId>, <operations>)', function()
       })
       .then(context => {
         expect(context.context).to.be.deep.equal(MODEL_1_OPERATIONS_1_LAST.diff);
-        expect(context.timestamp).to.equal(MODEL_1_OPERATIONS_1_LAST.timestamp);
+        expect(context.timestamp).to.equal(MODEL_1_OPERATIONS_1_TO + 100);
       })
       .then(() => {
         return client.getAgentContextOperations(agent.id);
