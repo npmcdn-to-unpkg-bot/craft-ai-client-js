@@ -14,7 +14,7 @@ describe('client.computeAgentDecision(<agentId>, <timestamp>, <context>)', funct
     expect(client).to.be.ok;
   });
   beforeEach(function() {
-    return client.destroyAgent(agentId) // Destroy any preexisting agent with this id.
+    return client.deleteAgent(agentId) // Delete any preexisting agent with this id.
       .then(() => client.createAgent(MODEL_1, agentId))
       .then(createdAgent => {
         expect(createdAgent).to.be.ok;
@@ -23,7 +23,7 @@ describe('client.computeAgentDecision(<agentId>, <timestamp>, <context>)', funct
       });
   });
   afterEach(function() {
-    return client.destroyAgent(agentId);
+    return client.deleteAgent(agentId);
   });
   it('should succeed when using valid parameters', function() {
     return client.computeAgentDecision(agent.id, MODEL_1_OPERATIONS_1_TO + 200, {

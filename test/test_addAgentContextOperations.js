@@ -21,7 +21,7 @@ describe('client.addAgentContextOperations(<agentId>, <operations>)', function()
     expect(client).to.be.ok;
   });
   beforeEach(function() {
-    return client.destroyAgent(agentId) // Destroy any preexisting agent with this id.
+    return client.deleteAgent(agentId) // Delete any preexisting agent with this id.
       .then(() => client.createAgent(MODEL_1, agentId))
       .then(createdAgent => {
         expect(createdAgent).to.be.ok;
@@ -29,7 +29,7 @@ describe('client.addAgentContextOperations(<agentId>, <operations>)', function()
       });
   });
   afterEach(function() {
-    return client.destroyAgent(agentId);
+    return client.deleteAgent(agentId);
   });
   it('should succeed when using valid operations', function() {
     return client.addAgentContextOperations(agent.id, MODEL_1_OPERATIONS_1)
@@ -38,7 +38,7 @@ describe('client.addAgentContextOperations(<agentId>, <operations>)', function()
       })
       .then(context => {
         expect(context.context).to.be.deep.equal(MODEL_1_OPERATIONS_1_LAST.diff);
-        expect(context.timestamp).to.equal(MODEL_1_OPERATIONS_1_LAST.timestamp);
+        expect(context.timestamp).to.equal(MODEL_1_OPERATIONS_1_TO + 100);
       })
       .then(() => {
         return client.getAgentContextOperations(agent.id);
@@ -245,12 +245,12 @@ describe('client.addAgentContextOperations(<agentId>, <operations>)', function()
       expect(retrievedOperations).to.be.deep.equal(MODEL_1_OPERATIONS_2);
     });
   });
-  it('should not fail when destroying the agent to which operations where added', function() {
+  it('should not fail when deleting the agent to which operations where added', function() {
     const agent2Id = 'add_agent_context_operations_agent_2';
-    return client.destroyAgent(agent2Id) // Destroy any preexisting agent with this id.
+    return client.deleteAgent(agent2Id) // Delegte any preexisting agent with this id.
       .then(() => client.createAgent(MODEL_1, agent2Id))
       .then(() => client.addAgentContextOperations(agent2Id, MODEL_1_OPERATIONS_1))
-      .then(() => client.destroyAgent(agent2Id))
+      .then(() => client.deleteAgent(agent2Id))
       .then(() => client.getAgentContextOperations(agent.id))
       .then(retrievedOperations => {
         expect(retrievedOperations).to.be.deep.empty;

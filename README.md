@@ -2,7 +2,7 @@
 
 [![Version](https://img.shields.io/npm/v/craft-ai.svg?style=flat-square)](https://npmjs.org/package/craft-ai) [![Build](https://img.shields.io/travis/craft-ai/craft-ai-client-js/master.svg?style=flat-square)](https://travis-ci.org/craft-ai/craft-ai-client-js) [![License](https://img.shields.io/badge/license-BSD--3--Clause-42358A.svg?style=flat-square)](LICENSE) [![Dependencies](https://img.shields.io/david/craft-ai/craft-ai-client-js.svg?style=flat-square)](https://david-dm.org/craft-ai/craft-ai-client-js) [![Dev Dependencies](https://img.shields.io/david/dev/craft-ai/craft-ai-client-js.svg?style=flat-square)](https://david-dm.org/craft-ai/craft-ai-client-js#info=devDependencies)
 
-**craft ai** _AI-as-a-service_ enables developers to create Apps and Things that adapt to each user. To go beyond useless dashboards and spammy notifications, **craft ai** learns how users behave to automate recurring tasks, make personalized recommendations, or detect anomalies.
+[**craft ai** _AI-as-a-service_](http://craft.ai) enables developers to create Apps and Things that adapt to each user. To go beyond useless dashboards and spammy notifications, **craft ai** learns how users behave to automate recurring tasks, make personalized recommendations, or detect anomalies.
 
 ## Get Started! ##
 
@@ -111,12 +111,12 @@ client.createAgent(
 
 Pretty straightforward to test! Open [`https://beta.craft.ai/inspector`](https://beta.craft.ai/inspector), your agent is now listed.
 
-Now, if you run that a second time, you'll get an error: the agent `'my_first_agent'` is already existing. Let's see how we can destroy it before recreating it.
+Now, if you run that a second time, you'll get an error: the agent `'my_first_agent'` is already existing. Let's see how we can delete it before recreating it.
 
 ```js
 var AGENT_ID = 'my_first_agent';
 
-client.destroyAgent(AGENT_ID)
+client.deleteAgent(AGENT_ID)
 .then(function() {
   console.log('Agent ' + AGENT_ID + ' no longer exists.');
   return client.createAgent(/*...*/);
@@ -149,7 +149,7 @@ In the following we add 8 operations:
 ```js
 var AGENT_ID = 'my_first_agent';
 
-client.destroyAgent(AGENT_ID)
+client.deleteAgent(AGENT_ID)
 .then(function() {
   console.log('Agent ' + AGENT_ID + ' no longer exists.');
   return client.createAgent(/*...*/);
@@ -234,7 +234,7 @@ The decision tree is computed at a given timestamp, which means it will consider
 ```js
 var AGENT_ID = 'my_first_agent';
 
-client.destroyAgent(AGENT_ID)
+client.deleteAgent(AGENT_ID)
 .then(function() {
   console.log('Agent ' + AGENT_ID + ' no longer exists.');
   return client.createAgent(/*...*/);
@@ -266,7 +266,7 @@ Once the decision tree is computed it can be used to take a decision. In our cas
 ```js
 var AGENT_ID = 'my_first_agent';
 
-client.destroyAgent(AGENT_ID)
+client.deleteAgent(AGENT_ID)
 .then(function() {
   console.log('Agent ' + AGENT_ID + ' no longer exists.');
   return client.createAgent(/*...*/);
@@ -413,7 +413,7 @@ provided continuously.
 
 **craft ai** API heavily relies on `timestamps`. A `timestamp` is an instant represented as a [Unix time](https://en.wikipedia.org/wiki/Unix_time), that is to say the amount of seconds elapsed since Thursday, 1 January 1970 at midnight UTC. In most programming languages this representation is easy to retrieve, you can refer to [**this page**](https://github.com/techgaun/unix-time/blob/master/README.md) to find out how.
 
-### `craftai.Time` ###
+#### `craftai.Time` ####
 
 The `craftai.Time` class facilitates the handling of time types in **craft ai**. It is able to extract the different **craft ai** formats from various _datetime_ representations, thanks to [Moment.js](http://momentjs.com).
 
@@ -485,7 +485,7 @@ client.createAgent(
     time_quantum: 100
   },
   'aphasic_parrot', // id for the agent, if undefined a random id is generated
-  true, // `destroyOnExit`, default is false
+  true, // `deleteOnExit`, default is false
 )
 .then(function(agent) {
   // Work on the agent here
@@ -499,9 +499,9 @@ client.createAgent(
 })
 ```
 
-##### `destroyOnExit` #####
+##### `deleteOnExit` #####
 
-If `true`, the agent will destroy itself when the window unloads or the process
+If `true`, the agent will delete itself when the window unloads or the process
 exits.
 
 - The **browser** version relies on the
@@ -512,14 +512,14 @@ event.
 [_unhandledrejection_](https://nodejs.org/api/process.html#process_event_unhandledrejection),
 [_SIGINT_, _SIGTERM_, _SIGQUIT_ and _SIGHUP_](https://nodejs.org/api/process.html#process_signal_events) events.
 
-#### Destroy ####
+#### Delete ####
 
 ```js
-client.destroyAgent(
+client.deleteAgent(
   'aphasic_parrot' // The agent id
 )
 .then(function() {
-  // The agent was successfully destroyed
+  // The agent was successfully deleted
 })
 .catch(function(error) {
   // Catch errors here
