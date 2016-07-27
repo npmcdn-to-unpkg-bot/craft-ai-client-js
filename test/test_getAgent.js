@@ -11,7 +11,7 @@ describe('client.getAgent(<agentId>)', function() {
     expect(client).to.be.ok;
   });
   beforeEach(function() {
-    return client.destroyAgent(agentId) // Destroy any preexisting agent with this id.
+    return client.deleteAgent(agentId) // Delete any preexisting agent with this id.
       .then(() => client.createAgent(MODEL_1, agentId))
       .then(createdAgent => {
         expect(createdAgent).to.be.ok;
@@ -19,7 +19,7 @@ describe('client.getAgent(<agentId>)', function() {
       });
   });
   afterEach(function() {
-    return client.destroyAgent(agentId);
+    return client.deleteAgent(agentId);
   });
   it('should return no first/last timestamps on "empty" agents', function() {
     return client.getAgent(agent.id)
@@ -29,7 +29,7 @@ describe('client.getAgent(<agentId>)', function() {
       });
   });
   it('should fail on non-existing agent', function() {
-    return client.destroyAgent(agentId)
+    return client.deleteAgent(agentId)
       .then(() => client.getAgent(agent.id))
       .catch(err => {
         expect(err).to.be.an.instanceof(errors.CraftAiError);

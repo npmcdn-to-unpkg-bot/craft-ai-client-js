@@ -3,7 +3,7 @@ import craftai, { errors } from '../src';
 import MODEL_1 from './data/model_1.json';
 import INVALID_MODEL_1 from './data/invalid_model_1.json';
 
-describe('client.createAgent(<model>, [id], [destroyOnExit])', function() {
+describe('client.createAgent(<model>, [id], [deleteOnExit])', function() {
   let client;
   before(function() {
     client = craftai(CRAFT_CFG);
@@ -17,21 +17,21 @@ describe('client.createAgent(<model>, [id], [destroyOnExit])', function() {
         return client.getAgent(agent.id)
           .then(retrieveAgent => {
             expect(retrieveAgent.model).to.be.deep.equal(MODEL_1);
-            return client.destroyAgent(agent.id);
+            return client.deleteAgent(agent.id);
           });
       });
   });
   it('should succeed when using a valid model and specified id', function() {
     const agentId = 'unspeakable_dermatologist';
-    return client.destroyAgent(agentId) // Destroy any preexisting agent with this id.
+    return client.deleteAgent(agentId) // Destroy any preexisting agent with this id.
       .then(() => client.createAgent(MODEL_1, agentId))
       .then(agent => {
         expect(agent).to.be.ok;
         expect(agent.id).to.be.equal(agentId);
-        return client.destroyAgent(agent.id);
+        return client.deleteAgent(agent.id);
       })
       .catch(err => {
-        client.destroyAgent(agentId) // The test might fail due to duplicate id, let's make sure it doesn't fail twice.
+        client.deleteAgent(agentId) // The test might fail due to duplicate id, let's make sure it doesn't fail twice.
           .then(() => {
             throw err;
           });
@@ -39,7 +39,7 @@ describe('client.createAgent(<model>, [id], [destroyOnExit])', function() {
   });
   it('should fail when trying to use the same id twice', function() {
     const agentId = 'aphasic_parrot';
-    return client.destroyAgent(agentId) // Destroy any preexisting agent with this id.
+    return client.deleteAgent(agentId) // Delete any preexisting agent with this id.
       .then(() => client.createAgent(MODEL_1, agentId))
       .then(agent => {
         expect(agent).to.be.ok;
@@ -51,12 +51,12 @@ describe('client.createAgent(<model>, [id], [destroyOnExit])', function() {
         expect(err).to.be.an.instanceof(errors.CraftAiBadRequestError);
       })
       .then(() => {
-        return client.destroyAgent(agentId);
+        return client.deleteAgent(agentId);
       });
   });
   it('should succeed when using a valid model, specified id and destroyOnExit', function() {
     const agentId = 'suicidal_on_exit';
-    return client.destroyAgent(agentId) // Destroy any preexisting agent with this id.
+    return client.deleteAgent(agentId) // Delete any preexisting agent with this id.
       .then(() => client.createAgent(MODEL_1, agentId, true))
       .then(agent => {
         expect(agent).to.be.ok;
