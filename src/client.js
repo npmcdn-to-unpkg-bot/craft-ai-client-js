@@ -24,11 +24,11 @@ export default function createClient(cfg) {
   }
 
   // The list of agents to remove 'onExit'
-  let agentsToDestroyOnExit = [];
+  let agentsToDeleteOnExit = [];
   onExit(() => {
-    if (agentsToDestroyOnExit.length > 0) {
-      debug(`Destroying agents ${ _.map(agentsToDestroyOnExit, agent => `'${agent}'`).join(', ') } before exiting...`);
-      _.forEach(agentsToDestroyOnExit, agentId => {
+    if (agentsToDeleteOnExit.length > 0) {
+      debug(`Deleting agents ${ _.map(agentsToDeleteOnExit, agent => `'${agent}'`).join(', ') } before exiting...`);
+      _.forEach(agentsToDeleteOnExit, agentId => {
         request({
           method: 'DELETE',
           path: '/agents/' + agentId,
@@ -103,7 +103,7 @@ export default function createClient(cfg) {
   // 'Public' attributes & methods
   let instance = _.defaults(_.clone(cfg), DEFAULTS, {
     cfg: cfg,
-    createAgent: function(model, id = undefined, destroyOnExit = false) {
+    createAgent: function(model, id = undefined, deleteOnExit = false) {
       if (_.isUndefined(model) || !_.isObject(model)) {
         return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to create an agent with no or invalid model provided.'));
       }
@@ -118,8 +118,8 @@ export default function createClient(cfg) {
       }, this)
       .then(agent => {
         debug(`Agent '${agent.id}' created using model '${agent.model}'`);
-        if (destroyOnExit) {
-          agentsToDestroyOnExit.push(agent.id);
+        if (deleteOnExit) {
+          agentsToDeleteOnExit.push(agent.id);
         }
         return agent;
       });
@@ -135,9 +135,9 @@ export default function createClient(cfg) {
         path: '/agents/' + agentId
       }, this));
     },
-    destroyAgent: function(agentId) {
+    deleteAgent: function(agentId) {
       if (_.isUndefined(agentId)) {
-        return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to destroy an agent with no agentId provided.'));
+        return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to delete an agent with no agentId provided.'));
       }
 
       agentsOperations[agentId] = [];
@@ -147,7 +147,24 @@ export default function createClient(cfg) {
         path: '/agents/' + agentId
       }, this)
       .then(agent => {
-        debug(`Agent '${agentId}' destroyed`);
+        debug(`Agent '${agentId}' deleted`);
+        return agent;
+      });
+    },
+    destroyAgent: function(agentId) {
+      if (_.isUndefined(agentId)) {
+        return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to delete an agent with no agentId provided.'));
+      }
+
+      agentsOperations[agentId] = [];
+
+      return request({
+        method: 'DELETE',
+        path: '/agents/' + agentId
+      }, this)
+      .then(agent => {
+        debug('This function is deprecated. It will be removed in the future, use \'deleteAgent\' instead.');
+        debug(`Agent '${agentId}' deleted`);
         return agent;
       });
     },
