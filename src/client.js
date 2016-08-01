@@ -135,6 +135,13 @@ export default function createClient(cfg) {
         path: '/agents/' + agentId
       }, this));
     },
+    listAgents: function(agentId) {
+      return request({
+        method: 'GET',
+        path: '/agents'
+      }, this)
+      .then(result => result.agentsList);
+    },
     deleteAgent: function(agentId) {
       if (_.isUndefined(agentId)) {
         return Promise.reject(new errors.CraftAiBadRequestError('Bad Request, unable to delete an agent with no agentId provided.'));

@@ -540,6 +540,18 @@ client.getAgent(
 })
 ```
 
+#### List ####
+
+```js
+client.listAgents()
+.then(function(agentIds) {
+  // list of agent ids, eg. ['impervious_kraken', 'aphasic_parrot']
+})
+.catch(function(error) {
+  // Catch errors here
+})
+```
+
 #### Retrieve the agent inspector URL ####
 
 ```js
