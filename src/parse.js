@@ -22,7 +22,7 @@ export default function parse( input ) {
       tree: json[1]
     };
   }
-  else if (semver.satisfies(version, '0.0.2') || semver.satisfies(version, '0.0.3')) {
+  else if (semver.satisfies(version, '0.0.2')) {
     if (_.isUndefined( json[1] ) || _.isUndefined( json[1].model )) {
       throw new Error('Invalid decision tree format, no model found.');
     }
@@ -31,6 +31,18 @@ export default function parse( input ) {
     }
     return {
       model: json[1].model,
+      tree: json[2]
+    };
+  }
+  else if (semver.satisfies(version, '0.0.3')) {
+    if (_.isUndefined( json[1] )) {
+      throw new Error('Invalid decision tree format, no model found.');
+    }
+    if (_.isUndefined( json[2] )) {
+      throw new Error('Invalid decision tree format, no tree found.');
+    }
+    return {
+      model: json[1],
       tree: json[2]
     };
   }

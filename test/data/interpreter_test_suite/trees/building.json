@@ -1,0 +1,183 @@
+[
+  {
+    "version": "0.0.3"
+  },
+  {
+    "context": {
+      "saison": {
+        "type": "enum"
+      },
+      "degresJour": {
+        "type": "continuous"
+      },
+      "nbJoursChauffe": {
+        "type": "continuous"
+      },
+      "energieChauffage": {
+        "type": "enum"
+      }
+    },
+    "output": [
+      "energieChauffage"
+    ],
+    "time_quantum": 2592000
+  },
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "confidence": 0.893635094165802,
+            "predicate": {
+              "op": "continuous.lessthan",
+              "value": 46
+            },
+            "value": "3"
+          },
+          {
+            "confidence": 0.6774609088897705,
+            "predicate": {
+              "op": "continuous.greaterthanorequal",
+              "value": 46
+            },
+            "value": "2"
+          }
+        ],
+        "predicate": {
+          "op": "continuous.lessthan",
+          "value": 67
+        },
+        "predicate_property": "degresJour"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "confidence": 0.6774609088897705,
+                "predicate": {
+                  "op": "continuous.lessthan",
+                  "value": 76
+                },
+                "value": "5"
+              },
+              {
+                "confidence": 0.893635094165802,
+                "predicate": {
+                  "op": "continuous.greaterthanorequal",
+                  "value": 76
+                },
+                "value": "1"
+              }
+            ],
+            "predicate": {
+              "op": "continuous.lessthan",
+              "value": 21
+            },
+            "predicate_property": "degresJour"
+          },
+          {
+            "children": [
+              {
+                "confidence": 0.6774609088897705,
+                "predicate": {
+                  "op": "continuous.lessthan",
+                  "value": 120
+                },
+                "value": "10"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "confidence": 0.31709539890289307,
+                            "predicate": {
+                              "op": "continuous.lessthan",
+                              "value": 319
+                            },
+                            "value": "16"
+                          },
+                          {
+                            "confidence": 0.2171838879585266,
+                            "predicate": {
+                              "op": "continuous.greaterthanorequal",
+                              "value": 319
+                            },
+                            "value": "19"
+                          }
+                        ],
+                        "predicate": {
+                          "op": "continuous.lessthan",
+                          "value": 402
+                        },
+                        "predicate_property": "degresJour"
+                      },
+                      {
+                        "children": [
+                          {
+                            "confidence": 0.8077218532562256,
+                            "predicate": {
+                              "op": "continuous.lessthan",
+                              "value": 488
+                            },
+                            "value": "29"
+                          },
+                          {
+                            "confidence": 0.6774609088897705,
+                            "predicate": {
+                              "op": "continuous.greaterthanorequal",
+                              "value": 488
+                            },
+                            "value": "33"
+                          }
+                        ],
+                        "predicate": {
+                          "op": "continuous.greaterthanorequal",
+                          "value": 402
+                        },
+                        "predicate_property": "degresJour"
+                      }
+                    ],
+                    "predicate": {
+                      "op": "continuous.lessthan",
+                      "value": 589
+                    },
+                    "predicate_property": "degresJour"
+                  },
+                  {
+                    "confidence": 0.6774609088897705,
+                    "predicate": {
+                      "op": "continuous.greaterthanorequal",
+                      "value": 589
+                    },
+                    "value": "39"
+                  }
+                ],
+                "predicate": {
+                  "op": "continuous.greaterthanorequal",
+                  "value": 120
+                },
+                "predicate_property": "degresJour"
+              }
+            ],
+            "predicate": {
+              "op": "continuous.greaterthanorequal",
+              "value": 21
+            },
+            "predicate_property": "degresJour"
+          }
+        ],
+        "predicate": {
+          "op": "continuous.greaterthanorequal",
+          "value": 67
+        },
+        "predicate_property": "nbJoursChauffe"
+      }
+    ],
+    "output_property": "energieChauffage",
+    "predicate_property": "degresJour"
+  }
+]
