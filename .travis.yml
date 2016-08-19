@@ -4,6 +4,9 @@ node_js:
 - '0.12'
 before_install: npm prune
 before_cache: npm prune
+before_install:
+  - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
+  - git submodule update --init --recursive
 install: npm install
 script: npm test
 deploy:

@@ -2,8 +2,8 @@ import { decide, Time } from '../src';
 import fs from 'fs';
 import path from 'path';
 
-const EXPECTATIONS_DIR = path.join(__dirname, 'data/interpreter_test_suite/expectations');
-const TREES_DIR = path.join(__dirname, 'data/interpreter_test_suite/trees');
+const EXPECTATIONS_DIR = path.join(__dirname, 'data/interpreter-test-suite/expectations');
+const TREES_DIR = path.join(__dirname, 'data/interpreter-test-suite/trees');
 
 // List the trees
 const treeFiles = fs.readdirSync(TREES_DIR);
