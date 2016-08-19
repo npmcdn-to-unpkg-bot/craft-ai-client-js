@@ -41,17 +41,18 @@ import craftai from 'craft-ai';
 
 ##### Plain Old Javascript #####
 
-Include our online pre-generated bundle in your html file
+Thanks to [npmcdn](https://npmcdn.com), you can include the pre-generated bundle in your html file, for the latest version use
 
 ```html
-<script type="text/javascript" src="http://www.craft.ai/craft-ai-client-js/craft-ai.js"></script>
+<script type="text/javascript" src="https://npmcdn.com/craft-ai/dist/craft-ai.min.js"></script>
 ```
 
-there's also a minified version
+to include a specific version specify it in the url like
 
 ```html
-<script type="text/javascript" src="http://www.craft.ai/craft-ai-client-js/craft-ai.min.js"></script>
+<script type="text/javascript" src="https://npmcdn.com/craft-ai@0.1.13/dist/craft-ai.min.js"></script>
 ```
+
 #### Initialize ####
 
 ```js
@@ -75,7 +76,7 @@ In this example, we will create an agent that learns the **decision model** of a
 
 - `peopleCount` which is a `continuous` property,
 - `timeOfDay` which is a `time_of_day` property,
-- `timezone`, a property of type `timezone` needed to generate proper values for `timeOfDay` (cf. the [context properties type section](#context-properties-types) for further information),
+- `tz`, a property of type `timezone` needed to generate proper values for `timeOfDay` (cf. the [context properties type section](#context-properties-types) for further information),
 - and finally `lightbulbState` which is an `enum` property that is also the output of this model.
 
 ```js
@@ -90,7 +91,7 @@ client.createAgent(
       timeOfDay: {
         type: 'time_of_day'
       },
-      timezone: {
+      tz: {
         type: 'timezone'
       },
       lightbulbState: {
@@ -282,7 +283,7 @@ client.deleteAgent(AGENT_ID)
 .then(function(tree) {
   console.log('Decision tree retrieved!', tree);
   let res = craftai.decide(tree, {
-    timezone: '+02:00',
+    tz: '+02:00',
     timeOfDay: 7.25,
     peopleCount: 2
   });
@@ -336,14 +337,16 @@ offset from UTC, the expected format is **±[hh]:[mm]** where `hh` represent the
 hour and `mm` the minutes from UTC (eg. `+01:30`)), between `-12:00` and
 `+14:00`.
 
-> :information_source: By default, the values of `time_of_day` and `day_of_week`
-> properties are > generated from the [`timestamp`](#timestamp) of an agent's
-> state and the agent's current > `timezone`.
+> :information_source: By default, the values of the `time_of_day` and `day_of_week`
+> properties are generated from the [`timestamp`](#timestamp) of an agent's
+> state and the agent's current `timezone`. Therefore, whenever you use generated
+> `time_of_day` and/or `day_of_week` in your model, you **must** provide a
+> `timezone` value in the context.
 >
-> If you wish to provide their value manually, add `is_generated: false` to the
-> time types in your model. In this case, since you provide the values, you must
-> update the context whenever one of these time values changes in a way that is
-> significant for your system.
+> If you wish to provide their values manually, add `is_generated: false` to the
+> time types properties in your model. In this case, since you provide the values, the
+> `timezone` property is not required, and you must update the context whenever
+> one of these time values changes in a way that is significant for your system.
 
 ##### Examples #####
 
