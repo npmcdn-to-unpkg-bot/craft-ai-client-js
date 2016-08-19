@@ -1,9 +1,0 @@
-[
-  {
-    "title": "fails",
-    "context": {},
-    "error": {
-      "message": "Invalid decision tree format, \"a_bad_version\" is not a valid version."
-    }
-  }
-]

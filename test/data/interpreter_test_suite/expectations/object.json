@@ -1,9 +1,0 @@
-[
-  {
-    "title": "fails",
-    "context": {},
-    "error": {
-      "message": "json is not an array"
-    }
-  }
-]
