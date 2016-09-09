@@ -41,16 +41,16 @@ import craftai from 'craft-ai';
 
 ##### Plain Old Javascript #####
 
-Thanks to [npmcdn](https://npmcdn.com), you can include the pre-generated bundle in your html file, for the latest version use
+Thanks to [unpkg](https://unpkg.com), you can include the pre-generated bundle in your html file, for the latest version use
 
 ```html
-<script type="text/javascript" src="https://npmcdn.com/craft-ai/dist/craft-ai.min.js"></script>
+<script type="text/javascript" src="https://unpkg.com/craft-ai/dist/craft-ai.min.js"></script>
 ```
 
 to include a specific version specify it in the url like
 
 ```html
-<script type="text/javascript" src="https://npmcdn.com/craft-ai@0.1.13/dist/craft-ai.min.js"></script>
+<script type="text/javascript" src="https://unpkg.com/craft-ai@0.1.13/dist/craft-ai.min.js"></script>
 ```
 
 #### Initialize ####
